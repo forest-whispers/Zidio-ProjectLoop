@@ -63,9 +63,19 @@ export async function signUp(dto: SignUpDto) {
         };
     }
 
+    let slugInput = dto.workspaceSlug.trim();
+    if (slugInput.includes("/")) {
+        const segments = slugInput.split("/").filter(Boolean);
+        const lastSegment = segments[segments.length - 1];
+        if (lastSegment) {
+            slugInput = lastSegment;
+        }
+    }
+    const slug = slugify(slugInput);
+
     const workspace = await prisma.workspace.findUnique({
         where: {
-            slug: dto.workspaceSlug,
+            slug,
         },
         select: {
             id: true,

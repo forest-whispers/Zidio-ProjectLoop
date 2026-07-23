@@ -58,7 +58,9 @@ export async function getFeedbacks(
     }
 
     if (sentiment) {
-        where.sentiment = sentiment;
+        where.analysis = {
+            sentiment: sentiment,
+        };
     }
 
     const [items, totalItems] = await prisma.$transaction([

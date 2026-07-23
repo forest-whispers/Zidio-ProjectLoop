@@ -71,6 +71,7 @@ export function RegisterForm() {
         setValue,
         watch,
         trigger,
+        clearErrors,
         formState: { errors, isValid },
     } = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
@@ -93,8 +94,7 @@ export function RegisterForm() {
     const handleModeChange = (newMode: "create" | "join") => {
         setValue("mode", newMode);
         setServerError(null);
-        // Retrigger validation for the new mode fields
-        trigger();
+        clearErrors(["workspaceSlug", "workspaceName"]);
     };
 
     // TanStack Query mutation for registration
@@ -380,7 +380,7 @@ export function RegisterForm() {
                                     id="role"
                                     disabled={isSubmitting}
                                     {...register("role")}
-                                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-sm bg-zinc-50 dark:bg-zinc-955 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-950/10 focus:border-zinc-950 dark:focus:ring-white/10 dark:focus:border-white appearance-none cursor-pointer"
+                                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-sm bg-zinc-50 dark:bg-zinc-950/30 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-950/10 focus:border-zinc-950 dark:focus:ring-white/10 dark:focus:border-white appearance-none cursor-pointer"
                                 >
                                     <option value="ANALYST">Analyst (Write/Edit permissions)</option>
                                     <option value="VIEWER">Viewer (Read-only permissions)</option>
