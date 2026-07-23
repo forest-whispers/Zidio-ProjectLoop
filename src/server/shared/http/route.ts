@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { AppError } from "@/server/shared/errors/AppError";
 
 type RouteContext = {
-    params?: Record<string, string>;
+    params?: any;
 };
 
 type RouteHandler = (

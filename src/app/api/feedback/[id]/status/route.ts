@@ -9,14 +9,8 @@ import { createRouteHandler } from "@/server/shared/http/route";
 import { ok } from "@/server/shared/http/response";
 import { UnauthorizedError } from "@/server/shared/errors/errors";
 
-interface RouteContext {
-    params: Promise<{
-        id: string;
-    }>;
-}
-
 export const PATCH = createRouteHandler(
-    async (request: NextRequest, context: RouteContext) => {
+    async (request: NextRequest, context: any) => {
         const session = await auth();
 
         if (!session?.user) {
