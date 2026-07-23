@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 
-import { auth } from "@/server/modules/auth/auth";
 import {
     createFeedback,
     getFeedbacks,
@@ -13,15 +12,15 @@ import {
 import { getBody } from "@/server/shared/http/body";
 import { createRouteHandler } from "@/server/shared/http/route";
 import { getQuery } from "@/server/shared/http/query";
+import { FEEDBACK_WRITE_ROLES } from "@/server/modules/feedback/feedback.constants";
 import { created, ok } from "@/server/shared/http/response";
-import { UnauthorizedError } from "@/server/shared/errors/errors";
+import { requireAuth } from "@/server/shared/auth/auth";
+import { requireRoles } from "@/server/shared/auth/permissions";
 
 export const POST = createRouteHandler(async (request: NextRequest) => {
-    const session = await auth();
+    const session = await requireAuth();
 
-    if (!session?.user) {
-        throw new UnauthorizedError("Unauthorized.");
-    }
+    requireRoles(session.user, FEEDBACK_WRITE_ROLES);
 
     const body = await getBody(request);
 
@@ -36,11 +35,7 @@ export const POST = createRouteHandler(async (request: NextRequest) => {
 });
 
 export const GET = createRouteHandler(async (request: NextRequest) => {
-    const session = await auth();
-
-    if (!session?.user) {
-        throw new UnauthorizedError("Unauthorized.");
-    }
+    const session = await requireAuth();
 
     const filters = feedbackFiltersSchema.parse(
         getQuery(request)

@@ -1,15 +1,10 @@
-import { auth } from "@/server/modules/auth/auth";
+import { requireAuth } from "@/server/shared/auth/auth";
 
 import { ok } from "@/server/shared/http/response";
-import { UnauthorizedError } from "@/server/shared/errors/errors";
 import { createRouteHandler } from "@/server/shared/http/route";
 
 export const GET = createRouteHandler(async () => {
-    const session = await auth();
-
-    if (!session?.user) {
-        throw new UnauthorizedError("Unauthorized.");
-    }
+    const session = await requireAuth();
 
     return ok({
         user: session.user,

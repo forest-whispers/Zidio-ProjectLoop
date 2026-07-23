@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { 
@@ -14,12 +14,15 @@ import {
     AlertCircle, 
     Sparkles, 
     FileSpreadsheet, 
-    Download 
+    Download,
+    Loader2
 } from "lucide-react";
 import { format } from "date-fns";
 import { FeedbackChannel, FeedbackStatus } from "@prisma/client";
 import { feedbackApi, FeedbackFilters } from "../services/feedback.api";
 import { useState, useEffect } from "react";
+import { useToast } from "./toast";
+import { ImportFeedbackDialog } from "./ImportFeedbackDialog";
 
 // Status Badge Styling Helper
 export function getStatusBadgeStyles(status: FeedbackStatus) {
@@ -70,6 +73,11 @@ export function formatChannel(channel: FeedbackChannel) {
 export function FeedbackList() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const queryClient = useQueryClient();
+    const { toast } = useToast();
+
+    // Dialog state
+    const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
     // Read initial filters from URL params
     const searchVal = searchParams.get("search") || "";
@@ -96,6 +104,35 @@ export function FeedbackList() {
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ["feedbacks", filters],
         queryFn: () => feedbackApi.getFeedbacks(filters),
+    });
+
+    // Demo Data Import Mutation
+    const demoMutation = useMutation({
+        mutationFn: feedbackApi.importDemo,
+        onSuccess: (res) => {
+            if (res.imported === 0) {
+                toast({
+                    title: "No Demo Data Imported",
+                    description: "All demo items are already imported or dataset is empty.",
+                    variant: "default",
+                });
+            } else {
+                toast({
+                    title: "Demo Data Imported",
+                    description: `Successfully imported ${res.imported} demo feedback entries.`,
+                    variant: "success",
+                });
+            }
+            // Invalidate query feedbacks prefix key to trigger a refetch
+            queryClient.invalidateQueries({ queryKey: ["feedbacks"] });
+        },
+        onError: (err: any) => {
+            toast({
+                title: "Demo Import Failed",
+                description: err.message || "Failed to trigger demo data import.",
+                variant: "destructive",
+            });
+        },
     });
 
     // Update URL helper
@@ -141,21 +178,27 @@ export function FeedbackList() {
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2.5">
-                    {/* Placeholder Import Buttons */}
+                    {/* Import Buttons */}
                     <button
-                        disabled
-                        title="CSV Import coming in future update"
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-400 dark:text-zinc-600 text-xs font-semibold bg-zinc-50 dark:bg-zinc-900 opacity-60 cursor-not-allowed"
+                        type="button"
+                        onClick={() => setIsImportDialogOpen(true)}
+                        disabled={demoMutation.isPending}
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-semibold bg-white dark:bg-zinc-900 shadow-xs cursor-pointer disabled:opacity-50 transition-colors"
                     >
-                        <FileSpreadsheet className="w-3.5 h-3.5" />
+                        <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-500" />
                         <span>CSV Import</span>
                     </button>
                     <button
-                        disabled
-                        title="Demo Import coming in future update"
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-400 dark:text-zinc-600 text-xs font-semibold bg-zinc-50 dark:bg-zinc-900 opacity-60 cursor-not-allowed"
+                        type="button"
+                        onClick={() => demoMutation.mutate()}
+                        disabled={demoMutation.isPending}
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-semibold bg-white dark:bg-zinc-900 shadow-xs cursor-pointer disabled:opacity-50 transition-colors"
                     >
-                        <Download className="w-3.5 h-3.5" />
+                        {demoMutation.isPending ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-500" />
+                        ) : (
+                            <Download className="w-3.5 h-3.5 text-indigo-500" />
+                        )}
                         <span>Demo Import</span>
                     </button>
 
@@ -447,6 +490,13 @@ export function FeedbackList() {
                     )}
                 </div>
             )}
+
+            {/* Import Feedback Dialog Modal */}
+            <ImportFeedbackDialog 
+                isOpen={isImportDialogOpen} 
+                onClose={() => setIsImportDialogOpen(false)} 
+                onSuccess={() => queryClient.invalidateQueries({ queryKey: ["feedbacks"] })}
+            />
         </div>
     );
 }

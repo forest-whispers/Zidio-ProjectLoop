@@ -144,4 +144,37 @@ export const feedbackApi = {
         });
         return handleResponse<void>(response);
     },
+
+    async importCsv(file: File): Promise<CsvImportResult> {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/feedback/import/csv", {
+            method: "POST",
+            body: formData,
+        });
+        return handleResponse<CsvImportResult>(response);
+    },
+
+    async importDemo(): Promise<DemoImportResult> {
+        const response = await fetch("/api/feedback/import/demo", {
+            method: "POST",
+        });
+        return handleResponse<DemoImportResult>(response);
+    },
 };
+
+export interface CsvImportError {
+    row: number;
+    message: string;
+}
+
+export interface CsvImportResult {
+    imported: number;
+    failed: number;
+    errors: CsvImportError[];
+}
+
+export interface DemoImportResult {
+    imported: number;
+}

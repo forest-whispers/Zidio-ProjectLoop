@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 
-import { auth } from "@/server/modules/auth/auth";
 import {
     deleteFeedback,
     getFeedbackById,
@@ -10,16 +9,14 @@ import { updateFeedbackSchema } from "@/server/modules/feedback/feedback.validat
 
 import { getBody } from "@/server/shared/http/body";
 import { createRouteHandler } from "@/server/shared/http/route";
+import { FEEDBACK_WRITE_ROLES } from "@/server/modules/feedback/feedback.constants";
 import { ok, noContent } from "@/server/shared/http/response";
-import { UnauthorizedError } from "@/server/shared/errors/errors";
+import { requireAuth } from "@/server/shared/auth/auth";
+import { requireRoles } from "@/server/shared/auth/permissions";
 
 export const GET = createRouteHandler(
     async (_: NextRequest, context: any) => {
-        const session = await auth();
-
-        if (!session?.user) {
-            throw new UnauthorizedError("Unauthorized.");
-        }
+        const session = await requireAuth();
 
         const { id } = await context.params;
 
@@ -34,11 +31,9 @@ export const GET = createRouteHandler(
 
 export const PATCH = createRouteHandler(
     async (request: NextRequest, context: any) => {
-        const session = await auth();
+        const session = await requireAuth();
 
-        if (!session?.user) {
-            throw new UnauthorizedError("Unauthorized.");
-        }
+        requireRoles(session.user, FEEDBACK_WRITE_ROLES);
 
         const { id } = await context.params;
 
@@ -58,11 +53,9 @@ export const PATCH = createRouteHandler(
 
 export const DELETE = createRouteHandler(
     async (_: NextRequest, context: any) => {
-        const session = await auth();
+        const session = await requireAuth();
 
-        if (!session?.user) {
-            throw new UnauthorizedError("Unauthorized.");
-        }
+        requireRoles(session.user, FEEDBACK_WRITE_ROLES);
 
         const { id } = await context.params;
 
