@@ -85,3 +85,19 @@ export const feedbackFiltersSchema = z.object({
         .max(100)
         .default(20),
 });
+
+export const csvFeedbackRowSchema = z.object({
+    content: z
+        .string()
+        .trim()
+        .min(5)
+        .max(5000),
+
+    channel: z.enum(feedbackChannels),
+
+    customerLabel: z
+        .string()
+        .trim()
+        .max(100)
+        .optional(),
+});

@@ -3,14 +3,16 @@ import { UserRole } from "@prisma/client";
 import { ForbiddenError } from "@/server/shared/errors/errors";
 
 interface UserLike {
-    role: UserRole;
+    role: UserRole | readonly UserRole[]
 }
 
 export function requireRoles(
     user: UserLike,
-    roles: UserRole[]
+    roles: UserRole | readonly UserRole[]
 ) {
-    if (!roles.includes(user.role)) {
+    const roleList = Array.isArray(roles) ? roles : [roles];
+
+    if (!roleList.includes(user.role)) {
         throw new ForbiddenError("You do not have permission to perform this action.");
     }
 }

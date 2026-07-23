@@ -33,3 +33,24 @@ export interface FeedbackFilters {
 
     limit?: number;
 }
+
+export interface CsvRow {
+    content: string;
+    channel: string;
+    customerLabel?: string;
+}
+
+export interface CsvImportError {
+    row: number;
+    message: string;
+}
+
+export interface CsvImportResult {
+    imported: number;
+    failed: number;
+    errors: CsvImportError[];
+}
+
+export interface DemoImportResult {
+    imported: number;
+}
