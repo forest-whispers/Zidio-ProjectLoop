@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { authenticateUser } from "./auth.service";
 
 export const {
     handlers,
@@ -23,6 +22,8 @@ export const {
                 if (!credentials?.email || !credentials.password) {
                     return null;
                 }
+
+                const { authenticateUser } = await import("./auth.service");
 
                 return authenticateUser(
                     credentials.email as string,

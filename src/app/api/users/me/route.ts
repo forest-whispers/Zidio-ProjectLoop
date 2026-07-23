@@ -14,4 +14,4 @@ export const GET = createRouteHandler(async () => {
     return ok({
         user: session.user,
     });
-});
+}) as any;

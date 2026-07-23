@@ -30,4 +30,4 @@ export const POST = createRouteHandler(async (request: NextRequest) => {
             slug: workspace.slug,
         },
     });
-});
+}) as any;
