@@ -28,8 +28,10 @@ model Workspace {
 
   users User[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  themes    Theme[]
+  feedbacks Feedback[]
 }
 
 model User {
@@ -48,4 +50,83 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([workspaceId])
+}
+
+enum FeedbackChannel {
+  SUPPORT_TICKET
+  APP_STORE
+  PLAY_STORE
+  TWITTER
+  SALES_CALL
+  SURVEY
+  COMMUNITY
+  CSV_IMPORT
+  MANUAL
+}
+
+enum FeedbackStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum Sentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+model Theme {
+  id String @id @default(cuid())
+
+  name        String
+  color       String
+  description String?
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  feedbacks FeedbackTheme[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+}
+
+model FeedbackTheme {
+  feedbackId String
+  themeId    String
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  theme    Theme    @relation(fields: [themeId], references: [id], onDelete: Cascade)
+
+  @@id([feedbackId, themeId])
+  @@index([themeId])
+}
+
+model Feedback {
+  id String @id @default(cuid())
+
+  content String
+
+  channel FeedbackChannel
+
+  customerLabel String?
+
+  status FeedbackStatus @default(SUBMITTED)
+
+  sentiment      Sentiment?
+  sentimentScore Float?
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  themes FeedbackTheme[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
