@@ -16,7 +16,7 @@ export default function DashboardLayout({
 
     if (status === "loading") {
         return (
-            <div className="flex-1 flex flex-col justify-center items-center min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400">
+            <div className="flex-1 flex flex-col justify-center items-center min-h-screen bg-[#fafaf6] dark:bg-[#0a0a09] text-zinc-600 dark:text-zinc-400">
                 <Loader2 className="w-8 h-8 animate-spin text-zinc-900 dark:text-white mb-2" />
                 <span className="text-sm font-medium">Loading session...</span>
             </div>
@@ -25,7 +25,7 @@ export default function DashboardLayout({
 
     if (!session?.user) {
         return (
-            <div className="flex-1 flex flex-col justify-center items-center min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400">
+            <div className="flex-1 flex flex-col justify-center items-center min-h-screen bg-[#fafaf6] dark:bg-[#0a0a09] text-zinc-600 dark:text-zinc-400">
                 <span className="text-sm font-semibold text-red-500">Access Denied: No active session.</span>
             </div>
         );
@@ -37,9 +37,9 @@ export default function DashboardLayout({
 
     return (
         <ToastProvider>
-            <div className="flex-1 flex flex-col min-h-screen bg-zinc-50 dark:bg-zinc-950">
+            <div className="flex-1 flex flex-col min-h-screen bg-[#fafaf6] dark:bg-[#0a0a09]">
                 {/* Header */}
-                <header className="sticky top-0 z-40 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md px-6 py-4 flex items-center justify-between shadow-sm">
+                <header className="sticky top-0 z-40 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-[#121210]/80 backdrop-blur-md px-6 py-4 flex items-center justify-between shadow-sm">
                     <div className="flex items-center space-x-8">
                         <Link href="/dashboard" className="flex items-center space-x-2">
                             <div className="w-8 h-8 rounded-lg bg-zinc-900 dark:bg-white flex items-center justify-center text-white dark:text-zinc-900 font-bold shadow-sm">
@@ -109,7 +109,7 @@ export default function DashboardLayout({
                 </header>
 
                 {/* Mobile Navigation Bar */}
-                <div className="sm:hidden border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 flex space-x-2">
+                <div className="sm:hidden border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121210] px-4 py-2 flex space-x-2">
                     <Link
                         href="/dashboard"
                         className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
