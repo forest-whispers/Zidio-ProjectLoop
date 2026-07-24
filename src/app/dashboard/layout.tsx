@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { LogOut, Home, MessageSquare, Loader2 } from "lucide-react";
+import { LogOut, Home, MessageSquare, Loader2, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ToastProvider } from "@/features/feedback/components/toast";
@@ -33,6 +33,7 @@ export default function DashboardLayout({
 
     const { user } = session;
     const isFeedbackActive = pathname.startsWith("/dashboard/feedback");
+    const isAnalyticsActive = pathname.startsWith("/dashboard/analytics");
 
     return (
         <ToastProvider>
@@ -70,6 +71,17 @@ export default function DashboardLayout({
                             >
                                 <MessageSquare className="w-3.5 h-3.5" />
                                 <span>Feedback Inbox</span>
+                            </Link>
+                            <Link
+                                href="/dashboard/analytics"
+                                className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                                    isAnalyticsActive
+                                        ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white"
+                                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white"
+                                }`}
+                            >
+                                <BarChart3 className="w-3.5 h-3.5" />
+                                <span>Analytics</span>
                             </Link>
                         </nav>
                     </div>
@@ -119,6 +131,17 @@ export default function DashboardLayout({
                     >
                         <MessageSquare className="w-3.5 h-3.5" />
                         <span>Feedback</span>
+                    </Link>
+                    <Link
+                        href="/dashboard/analytics"
+                        className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                            isAnalyticsActive
+                                ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white"
+                                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white"
+                        }`}
+                    >
+                        <BarChart3 className="w-3.5 h-3.5" />
+                        <span>Analytics</span>
                     </Link>
                 </div>
 
