@@ -42,20 +42,20 @@ export default function DashboardLayout({
                 <header className="sticky top-0 z-40 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-[#121210]/80 backdrop-blur-md px-6 py-4 flex items-center justify-between shadow-sm">
                     <div className="flex items-center space-x-8">
                         <Link href="/dashboard" className="flex items-center space-x-2">
-                            <div className="w-8 h-8 rounded-lg bg-zinc-900 dark:bg-white flex items-center justify-center text-white dark:text-zinc-900 font-bold shadow-sm">
+                            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black shadow-md shadow-indigo-500/20">
                                 L
                             </div>
-                            <span className="font-extrabold text-zinc-900 dark:text-white tracking-wider uppercase text-sm">LOOP</span>
+                            <span className="font-black text-zinc-900 dark:text-white tracking-widest text-sm">LOOP</span>
                         </Link>
 
                         {/* Navigation Links */}
                         <nav className="hidden sm:flex items-center space-x-1">
                             <Link
                                 href="/dashboard"
-                                className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 border ${
                                     pathname === "/dashboard"
-                                        ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white"
-                                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white"
+                                        ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 border-zinc-900 dark:border-white shadow-sm"
+                                        : "text-zinc-650 dark:text-zinc-450 hover:bg-zinc-150/40 dark:hover:bg-zinc-800/40 hover:text-zinc-900 dark:hover:text-white border-transparent"
                                 }`}
                             >
                                 <Home className="w-3.5 h-3.5" />
@@ -63,10 +63,10 @@ export default function DashboardLayout({
                             </Link>
                             <Link
                                 href="/dashboard/feedback"
-                                className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 border ${
                                     isFeedbackActive
-                                        ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white"
-                                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white"
+                                        ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 border-zinc-900 dark:border-white shadow-sm"
+                                        : "text-zinc-650 dark:text-zinc-450 hover:bg-zinc-150/40 dark:hover:bg-zinc-800/40 hover:text-zinc-900 dark:hover:text-white border-transparent"
                                 }`}
                             >
                                 <MessageSquare className="w-3.5 h-3.5" />
@@ -74,10 +74,10 @@ export default function DashboardLayout({
                             </Link>
                             <Link
                                 href="/dashboard/analytics"
-                                className={`flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 border ${
                                     isAnalyticsActive
-                                        ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white"
-                                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white"
+                                        ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 border-zinc-900 dark:border-white shadow-sm"
+                                        : "text-zinc-650 dark:text-zinc-450 hover:bg-zinc-150/40 dark:hover:bg-zinc-800/40 hover:text-zinc-900 dark:hover:text-white border-transparent"
                                 }`}
                             >
                                 <BarChart3 className="w-3.5 h-3.5" />
@@ -112,10 +112,10 @@ export default function DashboardLayout({
                 <div className="sm:hidden border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121210] px-4 py-2 flex space-x-2">
                     <Link
                         href="/dashboard"
-                        className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                        className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 border ${
                             pathname === "/dashboard"
-                                ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white"
-                                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white"
+                                ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 border-zinc-900 dark:border-white shadow-xs"
+                                : "text-zinc-650 dark:text-zinc-450 hover:bg-zinc-150/40 dark:hover:bg-zinc-800/40 hover:text-zinc-900 dark:hover:text-white border-transparent"
                         }`}
                     >
                         <Home className="w-3.5 h-3.5" />
@@ -123,10 +123,10 @@ export default function DashboardLayout({
                     </Link>
                     <Link
                         href="/dashboard/feedback"
-                        className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                        className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 border ${
                             isFeedbackActive
-                                ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white"
-                                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white"
+                                ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 border-zinc-900 dark:border-white shadow-xs"
+                                : "text-zinc-650 dark:text-zinc-450 hover:bg-zinc-150/40 dark:hover:bg-zinc-800/40 hover:text-zinc-900 dark:hover:text-white border-transparent"
                         }`}
                     >
                         <MessageSquare className="w-3.5 h-3.5" />
@@ -134,10 +134,10 @@ export default function DashboardLayout({
                     </Link>
                     <Link
                         href="/dashboard/analytics"
-                        className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                        className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 border ${
                             isAnalyticsActive
-                                ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white"
-                                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white"
+                                ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 border-zinc-900 dark:border-white shadow-xs"
+                                : "text-zinc-650 dark:text-zinc-450 hover:bg-zinc-150/40 dark:hover:bg-zinc-800/40 hover:text-zinc-900 dark:hover:text-white border-transparent"
                         }`}
                     >
                         <BarChart3 className="w-3.5 h-3.5" />

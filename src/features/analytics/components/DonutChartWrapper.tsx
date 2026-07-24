@@ -104,8 +104,8 @@ export function DonutChartWrapper({ data, height = 240, variant = "default" }: D
                             data={data}
                             cx="50%"
                             cy="50%"
-                            innerRadius={55}
-                            outerRadius={75}
+                            innerRadius="65%"
+                            outerRadius="90%"
                             paddingAngle={3}
                             dataKey="value"
                             nameKey="label"

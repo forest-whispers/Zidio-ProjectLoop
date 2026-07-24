@@ -1,33 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
     BarChart3,
     TrendingUp,
-    TrendingDown,
-    Smile,
-    Frown,
-    MessageSquare,
-    CheckCircle2,
-    Tags,
     Brain,
     AlertCircle,
     Calendar,
-    ArrowRight,
-    Loader2,
     RefreshCw,
     Inbox,
     Sparkles,
-    Eye
 } from "lucide-react";
 import { analyticsApi } from "../services/analytics.api";
 import { AnalyticsRange } from "@/server/modules/analytics/analytics.types";
 import { LineChartWrapper } from "./LineChartWrapper";
 import { DonutChartWrapper } from "./DonutChartWrapper";
-import { HorizontalBarChartWrapper } from "./HorizontalBarChartWrapper";
 import { VerticalBarChartWrapper } from "./VerticalBarChartWrapper";
 import { formatFeatureArea } from "@/features/feedback/components/AnalysisSummaryCard";
 import { formatChannel } from "@/features/feedback/components/FeedbackList";
@@ -35,6 +25,7 @@ import { formatChannel } from "@/features/feedback/components/FeedbackList";
 export function AnalyticsDashboard() {
     const router = useRouter();
     const [range, setRange] = useState<AnalyticsRange>("30d");
+    const [isHoveredNewWeek, setIsHoveredNewWeek] = useState(false);
 
     // TanStack Query configured with 5m staleTime and refetchOnWindowFocus disabled
     const { data, isLoading, error, refetch, isFetching } = useQuery({
@@ -361,7 +352,7 @@ export function AnalyticsDashboard() {
                                         return (
                                             <div
                                                 key={item.id}
-                                                onClick={() => router.push(`/dashboard/feedback?search=${encodeURIComponent(item.id)}`)}
+                                                onClick={() => router.push(`/dashboard/feedback/${item.id}`)}
                                                 className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-350 dark:hover:border-zinc-700 shadow-3xs cursor-pointer flex flex-col justify-between gap-4 transition-all hover:scale-[1.01]"
                                             >
                                                 <div className="space-y-2.5">
@@ -405,24 +396,45 @@ export function AnalyticsDashboard() {
                         
                         {/* Conditional: New This Week */}
                         {data.newThisWeek && (
-                            <div className="p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm space-y-4">
-                                <div className="flex items-center space-x-2.5 pb-3 border-b border-zinc-150 dark:border-zinc-850">
-                                    <Calendar className="w-4.5 h-4.5 text-indigo-500 shrink-0" />
-                                    <div>
-                                        <h3 className="text-xs font-black text-zinc-900 dark:text-white leading-none">New This Week</h3>
-                                        <p className="text-[9px] text-zinc-400 mt-0.5">Metrics for the current calendar week</p>
+                            <div 
+                                onMouseEnter={() => setIsHoveredNewWeek(true)}
+                                onMouseLeave={() => setIsHoveredNewWeek(false)}
+                                className="relative p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm transition-all duration-300 min-h-60 flex flex-col justify-between overflow-hidden cursor-pointer"
+                            >
+                                {isHoveredNewWeek ? (
+                                    <div className="space-y-4 animate-in fade-in duration-300 w-full grow flex flex-col justify-between">
+                                        <div className="flex items-center space-x-2.5 pb-2.5 border-b border-zinc-150 dark:border-zinc-850">
+                                            <Sparkles className="w-4.5 h-4.5 text-indigo-500 shrink-0 animate-pulse" />
+                                            <div>
+                                                <h3 className="text-xs font-black text-zinc-900 dark:text-white leading-none">Weekly Product Breakdown</h3>
+                                                <p className="text-[9px] text-zinc-450 mt-0.5 font-medium">Feature Area Distribution (%)</p>
+                                            </div>
+                                        </div>
+                                        <div className="grow flex items-center justify-center py-2">
+                                            <DonutChartWrapper data={data.featureAreaDistribution} height={100} variant="default" />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="text-center py-1">
-                                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider block">Weekly Count</span>
-                                    <span className="text-3xl font-black text-zinc-900 dark:text-white leading-none mt-1 block">
-                                        {data.newThisWeek.count}
-                                    </span>
-                                </div>
-                                {data.newThisWeek.count > 0 && (
-                                    <div className="pt-2 border-t border-zinc-100 dark:border-zinc-850">
-                                        <span className="text-[9px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider block mb-2.5 text-center">Weekly Sentiment</span>
-                                        <DonutChartWrapper data={data.newThisWeek.sentimentDistribution} height={90} variant="sentiment" />
+                                ) : (
+                                    <div className="space-y-4 animate-in fade-in duration-300 w-full">
+                                        <div className="flex items-center space-x-2.5 pb-3 border-b border-zinc-150 dark:border-zinc-850">
+                                            <Calendar className="w-4.5 h-4.5 text-indigo-500 shrink-0" />
+                                            <div>
+                                                <h3 className="text-xs font-black text-zinc-900 dark:text-white leading-none">New This Week</h3>
+                                                <p className="text-[9px] text-zinc-450 mt-0.5 font-medium">Metrics for the current calendar week</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-center py-1">
+                                            <span className="text-[10px] text-zinc-450 dark:text-zinc-500 font-bold uppercase tracking-wider block">Weekly Count</span>
+                                            <span className="text-3xl font-black text-zinc-900 dark:text-white leading-none mt-1 block">
+                                                {data.newThisWeek.count}
+                                            </span>
+                                        </div>
+                                        {data.newThisWeek.count > 0 && (
+                                            <div className="pt-2 border-t border-zinc-100 dark:border-zinc-850">
+                                                <span className="text-[9px] text-zinc-450 dark:text-zinc-500 font-bold uppercase tracking-wider block mb-2.5 text-center">Weekly Sentiment</span>
+                                                <DonutChartWrapper data={data.newThisWeek.sentimentDistribution} height={90} variant="sentiment" />
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -439,7 +451,7 @@ export function AnalyticsDashboard() {
                             </div>
 
                             {/* Themes list styled with rank badges */}
-                            <div className="space-y-3.5 max-h-[300px] overflow-y-auto pr-1">
+                            <div className="space-y-3.5 max-h-75 overflow-y-auto pr-1">
                                 {[...data.themeTrends]
                                     .sort((a, b) => Math.abs(b.percentageChange) - Math.abs(a.percentageChange))
                                     .slice(0, 5)
