@@ -12,7 +12,7 @@ const envSchema = z.object({
 
     AUTH_SECRET: z.string(),
 
-    AUTH_URL: z.string().url(),
+    NEXTAUTH_URL: z.string().url(),
 });
 
 export const env = envSchema.parse(process.env);
