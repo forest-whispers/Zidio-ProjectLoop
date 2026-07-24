@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { LogOut, Home, MessageSquare, Loader2, BarChart3, Sparkles } from "lucide-react";
+import { LogOut, Home, MessageSquare, Loader2, BarChart3, Sparkles, FileText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ToastProvider } from "@/features/feedback/components/toast";
@@ -35,6 +35,7 @@ export default function DashboardLayout({
     const isFeedbackActive = pathname.startsWith("/dashboard/feedback");
     const isAnalyticsActive = pathname.startsWith("/dashboard/analytics");
     const isAskActive = pathname.startsWith("/dashboard/ask");
+    const isReportActive = pathname.startsWith("/dashboard/report");
 
     return (
         <ToastProvider>
@@ -94,6 +95,17 @@ export default function DashboardLayout({
                             >
                                 <Sparkles className="w-3.5 h-3.5" />
                                 <span>Ask AI</span>
+                            </Link>
+                            <Link
+                                href="/dashboard/report"
+                                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 border ${
+                                    isReportActive
+                                        ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 border-zinc-900 dark:border-white shadow-sm"
+                                        : "text-zinc-650 dark:text-zinc-450 hover:bg-zinc-150/40 dark:hover:bg-zinc-800/40 hover:text-zinc-900 dark:hover:text-white border-transparent"
+                                }`}
+                            >
+                                <FileText className="w-3.5 h-3.5" />
+                                <span>Report</span>
                             </Link>
                         </nav>
                     </div>
@@ -165,6 +177,17 @@ export default function DashboardLayout({
                     >
                         <Sparkles className="w-3.5 h-3.5" />
                         <span>Ask AI</span>
+                    </Link>
+                    <Link
+                        href="/dashboard/report"
+                        className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 border ${
+                            isReportActive
+                                ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 border-zinc-900 dark:border-white shadow-xs"
+                                : "text-zinc-650 dark:text-zinc-450 hover:bg-zinc-150/40 dark:hover:bg-zinc-800/40 hover:text-zinc-900 dark:hover:text-white border-transparent"
+                        }`}
+                    >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Report</span>
                     </Link>
                 </div>
 

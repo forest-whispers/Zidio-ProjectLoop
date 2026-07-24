@@ -26,6 +26,8 @@ import { feedbackApi } from "../services/feedback.api";
 import { updateFeedbackSchema } from "@/server/modules/feedback/feedback.validation";
 import { getStatusBadgeStyles, formatStatus, formatChannel } from "./FeedbackList";
 import { FeedbackStatus, FeedbackChannel } from "@prisma/client";
+import { SentimentBadge } from "./SentimentBadge";
+import { formatFeatureArea } from "./AnalysisSummaryCard";
 
 type UpdateFeedbackFormValues = z.infer<typeof updateFeedbackSchema>;
 
@@ -445,44 +447,122 @@ export function FeedbackDetailView({ id }: { id: string }) {
                 </div>
             </div>
 
-            {/* Placeholders Card - AI and Themes */}
+            {/* AI and Themes Info Block */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* AI Sentiment Analysis Placeholder */}
+                {/* AI Sentiment Analysis Section */}
                 <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-xl shadow-xs space-y-4">
                     <div className="flex items-center justify-between pb-2.5 border-b border-zinc-150 dark:border-zinc-800">
                         <div className="flex items-center space-x-2 text-zinc-900 dark:text-white">
                             <Sparkles className="w-4.5 h-4.5 text-indigo-500 animate-pulse" />
                             <h3 className="font-bold text-sm">AI Sentiment & Score</h3>
                         </div>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30">
-                            Coming in AI Phase
-                        </span>
+                        {feedback.analysis ? (
+                            <SentimentBadge sentiment={feedback.analysis.sentiment} />
+                        ) : (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-450 border border-zinc-200 dark:border-zinc-700">
+                                Not Analyzed
+                            </span>
+                        )}
                     </div>
-                    <div className="flex items-center space-x-4 bg-zinc-50 dark:bg-zinc-950 p-4 rounded-lg border border-zinc-200/40 dark:border-zinc-800/40 opacity-70">
-                        <Info className="w-5 h-5 text-zinc-400 shrink-0" />
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            Natural language processing will auto-classify sentiment score and positive/negative tone for this item when AI phase initiates.
-                        </p>
-                    </div>
+                    {feedback.analysis ? (
+                        <div className="space-y-3.5">
+                            {/* Score & Feature Area */}
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-zinc-650 dark:text-zinc-400">
+                                <div>
+                                    <span>Sentiment Score: </span>
+                                    <span className="font-mono text-zinc-850 dark:text-zinc-200 font-extrabold">
+                                        {feedback.analysis.sentimentScore > 0 ? "+" : ""}
+                                        {feedback.analysis.sentimentScore.toFixed(2)}
+                                    </span>
+                                </div>
+                                <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700 shrink-0" />
+                                <div>
+                                    <span>Feature Area: </span>
+                                    <span className="text-zinc-850 dark:text-zinc-200 font-extrabold">
+                                        {formatFeatureArea(feedback.analysis.featureArea)}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Summary */}
+                            <div className="space-y-1">
+                                <span className="text-[9px] text-zinc-405 dark:text-zinc-500 font-bold uppercase tracking-wider block">AI Summary</span>
+                                <p className="text-xs text-zinc-750 dark:text-zinc-300 font-semibold leading-relaxed">
+                                    {feedback.analysis.summary}
+                                </p>
+                            </div>
+
+                            {/* Keywords */}
+                            {feedback.analysis.keywords && feedback.analysis.keywords.length > 0 && (
+                                <div className="space-y-1.5 pt-1">
+                                    <span className="text-[9px] text-zinc-405 dark:text-zinc-500 font-bold uppercase tracking-wider block">Keywords</span>
+                                    <div className="flex flex-wrap gap-1">
+                                        {feedback.analysis.keywords.map((kw) => (
+                                            <span 
+                                                key={kw} 
+                                                className="px-2 py-0.5 rounded bg-zinc-50 dark:bg-zinc-850 border border-zinc-200/50 dark:border-zinc-800/80 text-[9px] font-bold text-zinc-500 dark:text-zinc-400"
+                                            >
+                                                {kw}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="flex items-start space-x-3.5 bg-zinc-50/50 dark:bg-zinc-950/20 p-4 rounded-xl border border-zinc-200/40 dark:border-zinc-800/45">
+                            <Info className="w-5 h-5 text-zinc-450 shrink-0 mt-0.5" />
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold leading-relaxed">
+                                This feedback has not been analyzed yet. To view AI insights, return to the feedback inbox and click "Analyze" on this row.
+                            </p>
+                        </div>
+                    )}
                 </div>
 
-                {/* Theme Management Placeholder */}
+                {/* Theme Assignments Section */}
                 <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-xl shadow-xs space-y-4">
                     <div className="flex items-center justify-between pb-2.5 border-b border-zinc-150 dark:border-zinc-800">
                         <div className="flex items-center space-x-2 text-zinc-900 dark:text-white">
                             <Layers className="w-4.5 h-4.5 text-indigo-500" />
                             <h3 className="font-bold text-sm">Theme Assignments</h3>
                         </div>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30">
-                            Coming in Themes Phase
-                        </span>
+                        {feedback.themes && feedback.themes.length > 0 ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-indigo-50 dark:bg-indigo-950/30 text-indigo-650 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 uppercase tracking-wider">
+                                {feedback.themes.length} {feedback.themes.length === 1 ? "Theme" : "Themes"}
+                            </span>
+                        ) : null}
                     </div>
-                    <div className="flex items-center space-x-4 bg-zinc-50 dark:bg-zinc-950 p-4 rounded-lg border border-zinc-200/40 dark:border-zinc-800/40 opacity-70">
-                        <Info className="w-5 h-5 text-zinc-400 shrink-0" />
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            This feedback item will automatically link with multiple custom project themes (e.g. UX, Performance, Billing) during the Theme phase.
-                        </p>
-                    </div>
+                    {feedback.themes && feedback.themes.length > 0 ? (
+                        <div className="grid grid-cols-1 gap-2.5">
+                            {feedback.themes.map((ft) => (
+                                <div 
+                                    key={ft.themeId}
+                                    className="p-3 bg-zinc-50/50 dark:bg-zinc-950/20 border border-zinc-200/50 dark:border-zinc-800/80 rounded-xl flex items-start space-x-2.5 hover:border-zinc-350 dark:hover:border-zinc-700 transition-colors"
+                                >
+                                    {/* Color Indicator */}
+                                    <div 
+                                        className="w-2.5 h-2.5 rounded-full shrink-0 mt-1" 
+                                        style={{ backgroundColor: ft.theme.color || "#4f46e5" }}
+                                    />
+                                    <div className="space-y-0.5">
+                                        <h4 className="text-xs font-black text-zinc-900 dark:text-white">{ft.theme.name}</h4>
+                                        {ft.theme.description && (
+                                            <p className="text-[10px] text-zinc-500 dark:text-zinc-450 leading-normal font-semibold">
+                                                {ft.theme.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex items-start space-x-3.5 bg-zinc-50/50 dark:bg-zinc-950/20 p-4 rounded-xl border border-zinc-200/40 dark:border-zinc-800/45">
+                            <Info className="w-5 h-5 text-zinc-455 shrink-0 mt-0.5" />
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold leading-relaxed">
+                                No themes assigned. Themes are generated and mapped automatically once this feedback item undergoes AI analysis.
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 
