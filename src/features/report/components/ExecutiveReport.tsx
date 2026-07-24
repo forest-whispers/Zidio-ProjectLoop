@@ -91,12 +91,12 @@ export function ExecutiveReport() {
             `}} />
 
             {/* Header Title toolbar */}
-            <div className="pb-2 border-b border-zinc-200/60 dark:border-zinc-800 print-hide">
-                <h1 className="text-xl font-black text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-indigo-500 shrink-0" />
-                    <span>Executive Report</span>
+            <div className="pb-4 border-b border-zinc-200/60 dark:border-zinc-800 print-hide">
+                <h1 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white tracking-tight flex items-center gap-2.5">
+                    <FileText className="w-5.5 h-5.5 text-indigo-500 shrink-0" />
+                    <span>Executive briefing</span>
                 </h1>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium mt-1">
                     Summarize product feedback trends into an executive-ready intelligence briefing
                 </p>
             </div>

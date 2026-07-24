@@ -16,16 +16,20 @@ import {
     FileSpreadsheet, 
     Download,
     Loader2,
-    Brain
+    Brain,
+    Inbox,
+    Upload
 } from "lucide-react";
 import { format } from "date-fns";
-import { FeedbackChannel, FeedbackStatus } from "@prisma/client";
+import { FeedbackChannel, FeedbackStatus, Sentiment } from "@prisma/client";
 import { feedbackApi, FeedbackFilters, Feedback } from "../services/feedback.api";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useToast } from "./toast";
 import { ImportFeedbackDialog } from "./ImportFeedbackDialog";
 import { AnalysisStatus } from "./AnalysisStatus";
 import { FeedbackAnalysisDialog } from "./FeedbackAnalysisDialog";
+import { CustomSelect } from "@/features/shared/ui/CustomSelect";
 
 // Status Badge Styling Helper
 export function getStatusBadgeStyles(status: FeedbackStatus) {
@@ -73,11 +77,42 @@ export function formatChannel(channel: FeedbackChannel) {
     }
 }
 
+const STATUS_OPTIONS = [
+    { value: "", label: "All Statuses" },
+    { value: "SUBMITTED", label: "Submitted" },
+    { value: "UNDER_REVIEW", label: "Under Review" },
+    { value: "IN_PROGRESS", label: "In Progress" },
+    { value: "RESOLVED", label: "Resolved" },
+    { value: "CLOSED", label: "Closed" }
+];
+
+const CHANNEL_OPTIONS = [
+    { value: "", label: "All Channels" },
+    { value: "SUPPORT_TICKET", label: "Support Ticket" },
+    { value: "APP_STORE", label: "App Store" },
+    { value: "PLAY_STORE", label: "Play Store" },
+    { value: "TWITTER", label: "Twitter" },
+    { value: "SALES_CALL", label: "Sales Call" },
+    { value: "SURVEY", label: "Survey" },
+    { value: "COMMUNITY", label: "Community" },
+    { value: "CSV_IMPORT", label: "CSV Import" },
+    { value: "MANUAL", label: "Manual" }
+];
+
+const SENTIMENT_OPTIONS = [
+    { value: "", label: "All Sentiments" },
+    { value: "POSITIVE", label: "Positive" },
+    { value: "NEUTRAL", label: "Neutral" },
+    { value: "NEGATIVE", label: "Negative" }
+];
+
 export function FeedbackList() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const { data: session } = useSession();
+    const isViewer = session?.user?.role === "VIEWER";
 
     // Dialog state
     const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
@@ -88,6 +123,7 @@ export function FeedbackList() {
     const searchVal = searchParams.get("search") || "";
     const statusVal = (searchParams.get("status") || "") as FeedbackStatus | "";
     const channelVal = (searchParams.get("channel") || "") as FeedbackChannel | "";
+    const sentimentVal = (searchParams.get("sentiment") || "") as Sentiment | "";
     const pageVal = parseInt(searchParams.get("page") || "1", 10);
 
     const [searchInput, setSearchInput] = useState(searchVal);
@@ -103,6 +139,7 @@ export function FeedbackList() {
         ...(searchVal ? { search: searchVal } : {}),
         ...(statusVal ? { status: statusVal } : {}),
         ...(channelVal ? { channel: channelVal } : {}),
+        ...(sentimentVal ? { sentiment: sentimentVal } : {}),
     };
 
     // TanStack Query
@@ -110,6 +147,9 @@ export function FeedbackList() {
         queryKey: ["feedbacks", filters],
         queryFn: () => feedbackApi.getFeedbacks(filters),
     });
+
+    const hasActiveFilters = !!(searchVal || statusVal || channelVal || sentimentVal);
+    const isInboxEmpty = data?.pagination.totalItems === 0;
 
     // Demo Data Import Mutation
     const demoMutation = useMutation({
@@ -218,61 +258,64 @@ export function FeedbackList() {
     return (
         <div className="grow max-w-6xl w-full mx-auto px-4 py-8 space-y-6 animate-in fade-in duration-300">
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-zinc-200 dark:border-zinc-800">
-                <div>
-                    <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-                        Feedback Inbox
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+                <div className="space-y-1">
+                    <h1 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white tracking-tight flex items-center gap-2.5">
+                        <MessageSquare className="w-5.5 h-5.5 text-indigo-500 shrink-0" />
+                        <span>Feedback Inbox</span>
                     </h1>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
                         Collect, analyze, and organize customer feedback requests
                     </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2.5">
-                    {/* Import Buttons */}
-                    <button
-                        type="button"
-                        onClick={() => setIsImportDialogOpen(true)}
-                        disabled={demoMutation.isPending || workspaceAnalysisMutation.isPending}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-semibold bg-white dark:bg-zinc-900 shadow-xs cursor-pointer disabled:opacity-50 transition-colors"
-                    >
-                        <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-500" />
-                        <span>CSV Import</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => demoMutation.mutate()}
-                        disabled={demoMutation.isPending || workspaceAnalysisMutation.isPending}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-semibold bg-white dark:bg-zinc-900 shadow-xs cursor-pointer disabled:opacity-50 transition-colors"
-                    >
-                        {demoMutation.isPending ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-500" />
-                        ) : (
-                            <Download className="w-3.5 h-3.5 text-indigo-500" />
-                        )}
-                        <span>Demo Import</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => workspaceAnalysisMutation.mutate()}
-                        disabled={workspaceAnalysisMutation.isPending || demoMutation.isPending}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-semibold bg-white dark:bg-zinc-900 shadow-xs cursor-pointer disabled:opacity-50 transition-colors"
-                    >
-                        {workspaceAnalysisMutation.isPending ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-500" />
-                        ) : (
-                            <Brain className="w-3.5 h-3.5 text-indigo-500" />
-                        )}
-                        <span>Analyze Remaining</span>
-                    </button>
+                {!isViewer && (
+                    <div className="flex flex-wrap items-center gap-2.5">
+                        {/* Import Buttons */}
+                        <button
+                            type="button"
+                            onClick={() => setIsImportDialogOpen(true)}
+                            disabled={demoMutation.isPending || workspaceAnalysisMutation.isPending}
+                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-semibold bg-white dark:bg-zinc-900 shadow-xs cursor-pointer disabled:opacity-50 transition-colors"
+                        >
+                            <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-500" />
+                            <span>CSV Import</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => demoMutation.mutate()}
+                            disabled={demoMutation.isPending || workspaceAnalysisMutation.isPending}
+                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-semibold bg-white dark:bg-zinc-900 shadow-xs cursor-pointer disabled:opacity-50 transition-colors"
+                        >
+                            {demoMutation.isPending ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-500" />
+                            ) : (
+                                <Download className="w-3.5 h-3.5 text-indigo-500" />
+                            )}
+                            <span>Demo Import</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => workspaceAnalysisMutation.mutate()}
+                            disabled={workspaceAnalysisMutation.isPending || demoMutation.isPending}
+                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-semibold bg-white dark:bg-zinc-900 shadow-xs cursor-pointer disabled:opacity-50 transition-colors"
+                        >
+                            {workspaceAnalysisMutation.isPending ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-500" />
+                            ) : (
+                                <Brain className="w-3.5 h-3.5 text-indigo-500" />
+                            )}
+                            <span>Analyze Remaining</span>
+                        </button>
 
-                    <Link
-                        href="/dashboard/feedback/new"
-                        className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-semibold shadow-md dark:shadow-zinc-900/20 hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all active:scale-[0.98] cursor-pointer"
-                    >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>New Feedback</span>
-                    </Link>
-                </div>
+                        <Link
+                            href="/dashboard/feedback/new"
+                            className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-semibold shadow-md dark:shadow-zinc-900/20 hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all active:scale-[0.98] cursor-pointer"
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>New Feedback</span>
+                        </Link>
+                    </div>
+                )}
             </div>
 
             {/* Filter and Search Bar */}
@@ -303,57 +346,34 @@ export function FeedbackList() {
                     {/* Filter Selects */}
                     <div className="flex flex-wrap items-center gap-2">
                         {/* Status Select */}
-                        <div className="flex items-center space-x-1.5">
-                            <select
-                                value={statusVal}
-                                onChange={(e) => updateUrl({ status: e.target.value })}
-                                className="pl-3 pr-8 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/30 text-zinc-800 dark:text-zinc-200 text-xs focus:outline-none focus:ring-2 focus:ring-zinc-950/10 focus:border-zinc-950 dark:focus:ring-white/10 dark:focus:border-white appearance-none cursor-pointer"
-                            >
-                                <option value="">All Statuses</option>
-                                <option value="SUBMITTED">Submitted</option>
-                                <option value="UNDER_REVIEW">Under Review</option>
-                                <option value="IN_PROGRESS">In Progress</option>
-                                <option value="RESOLVED">Resolved</option>
-                                <option value="CLOSED">Closed</option>
-                            </select>
-                        </div>
+                        <CustomSelect
+                            value={statusVal}
+                            onChange={(val) => updateUrl({ status: val })}
+                            options={STATUS_OPTIONS}
+                            placeholder="All Statuses"
+                        />
 
                         {/* Channel Select */}
-                        <div className="flex items-center space-x-1.5">
-                            <select
-                                value={channelVal}
-                                onChange={(e) => updateUrl({ channel: e.target.value })}
-                                className="pl-3 pr-8 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/30 text-zinc-800 dark:text-zinc-200 text-xs focus:outline-none focus:ring-2 focus:ring-zinc-950/10 focus:border-zinc-950 dark:focus:ring-white/10 dark:focus:border-white appearance-none cursor-pointer"
-                            >
-                                <option value="">All Channels</option>
-                                <option value="SUPPORT_TICKET">Support Ticket</option>
-                                <option value="APP_STORE">App Store</option>
-                                <option value="PLAY_STORE">Play Store</option>
-                                <option value="TWITTER">Twitter</option>
-                                <option value="SALES_CALL">Sales Call</option>
-                                <option value="SURVEY">Survey</option>
-                                <option value="COMMUNITY">Community</option>
-                                <option value="CSV_IMPORT">CSV Import</option>
-                                <option value="MANUAL">Manual</option>
-                            </select>
-                        </div>
+                        <CustomSelect
+                            value={channelVal}
+                            onChange={(val) => updateUrl({ channel: val })}
+                            options={CHANNEL_OPTIONS}
+                            placeholder="All Channels"
+                        />
 
-                        {/* Sentiment Select (Disabled AI Placeholder) */}
-                        <div className="flex items-center space-x-1.5 relative group">
-                            <select
-                                disabled
-                                className="pl-3 pr-8 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-600 text-xs cursor-not-allowed appearance-none"
-                            >
-                                <option>AI Sentiment (Coming in AI Phase)</option>
-                            </select>
-                            <Sparkles className="w-3.5 h-3.5 absolute right-2.5 text-zinc-400 dark:text-zinc-600 pointer-events-none" />
-                        </div>
+                        {/* Sentiment Select */}
+                        <CustomSelect
+                            value={sentimentVal}
+                            onChange={(val) => updateUrl({ sentiment: val })}
+                            options={SENTIMENT_OPTIONS}
+                            placeholder="All Sentiments"
+                        />
 
                         {/* Clear Filters Link */}
-                        {(searchVal || statusVal || channelVal) && (
+                        {(searchVal || statusVal || channelVal || sentimentVal) && (
                             <button
                                 onClick={handleClearFilters}
-                                className="text-xs text-zinc-500 hover:text-red-500 font-medium transition-colors cursor-pointer"
+                                className="text-xs text-zinc-550 hover:text-red-500 font-semibold transition-colors cursor-pointer"
                             >
                                 Clear filters
                             </button>
@@ -382,190 +402,221 @@ export function FeedbackList() {
 
             {/* Main Content Area */}
             {!error && (
-                <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                                    <th className="py-3.5 px-4 font-semibold w-1/3 md:w-1/2">Content</th>
-                                    <th className="py-3.5 px-4 font-semibold">Channel</th>
-                                    <th className="py-3.5 px-4 font-semibold">Customer Label</th>
-                                    <th className="py-3.5 px-4 font-semibold">Status</th>
-                                    <th className="py-3.5 px-4 font-semibold">Sentiment</th>
-                                    <th className="py-3.5 px-4 font-semibold text-right">Created At</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-xs text-zinc-600 dark:text-zinc-300">
-                                {isLoading ? (
-                                    // Skeletons
-                                    Array.from({ length: 6 }).map((_, i) => (
-                                        <tr key={i} className="animate-pulse">
-                                            <td className="py-4 px-4">
-                                                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-11/12" />
-                                            </td>
-                                            <td className="py-4 px-4">
-                                                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16" />
-                                            </td>
-                                            <td className="py-4 px-4">
-                                                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-20" />
-                                            </td>
-                                            <td className="py-4 px-4">
-                                                <div className="h-5 bg-zinc-200 dark:bg-zinc-800 rounded-full w-20" />
-                                            </td>
-                                            <td className="py-4 px-4">
-                                                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-12" />
-                                            </td>
-                                            <td className="py-4 px-4">
-                                                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-20 ml-auto" />
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : data?.items.length === 0 ? (
-                                    // Empty State inside Table
-                                    <tr>
-                                        <td colSpan={6} className="py-12 px-4 text-center">
-                                            <div className="flex flex-col items-center justify-center space-y-3">
-                                                <div className="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 text-zinc-400">
-                                                    <MessageSquare className="w-6 h-6" />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <h3 className="font-bold text-sm text-zinc-900 dark:text-white">No feedback found</h3>
-                                                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                                        No entries matched your filter parameters. Try expanding your search.
-                                                    </p>
-                                                </div>
-                                                <button
-                                                    onClick={handleClearFilters}
-                                                    className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
-                                                >
-                                                    Clear Filters
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    // Feedbacks List
-                                    data?.items.map((item) => (
-                                        <tr
-                                            key={item.id}
-                                            onClick={() => router.push(`/dashboard/feedback/${item.id}`)}
-                                            className="hover:bg-zinc-50 dark:hover:bg-zinc-900/50 cursor-pointer transition-colors group/row"
-                                        >
-                                            {/* Truncated Content + Custom CSS Tooltip */}
-                                            <td className="py-3.5 px-4 font-medium max-w-50 md:max-w-xs relative">
-                                                <div className="relative group/tooltip inline-block max-w-full">
-                                                    <span className="block truncate text-zinc-900 dark:text-white group-hover/row:text-indigo-600 dark:group-hover/row:text-indigo-400 transition-colors font-medium">
-                                                        {item.content}
-                                                    </span>
-                                                    {/* Tooltip Popup */}
-                                                    <div className="absolute left-0 bottom-full mb-2 hidden group-hover/tooltip:block z-50 w-72 p-3 bg-zinc-900 text-zinc-100 dark:bg-white dark:text-zinc-900 text-xs rounded-lg shadow-lg border border-zinc-800 dark:border-zinc-200 pointer-events-none wrap-break-word font-normal">
-                                                        {item.content}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            
-                                            {/* Channel */}
-                                            <td className="py-3.5 px-4 text-zinc-500 dark:text-zinc-400">
-                                                {formatChannel(item.channel)}
-                                            </td>
-
-                                            {/* Customer Label */}
-                                            <td className="py-3.5 px-4">
-                                                {item.customerLabel ? (
-                                                    <span className="inline-block px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/50 dark:border-zinc-700/50 text-[10px] font-semibold text-zinc-600 dark:text-zinc-300">
-                                                        {item.customerLabel}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-zinc-400 dark:text-zinc-600">—</span>
-                                                )}
-                                            </td>
-
-                                            {/* Status Badge */}
-                                            <td className="py-3.5 px-4">
-                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getStatusBadgeStyles(item.status)}`}>
-                                                    {formatStatus(item.status)}
-                                                </span>
-                                            </td>
-
-                                            {/* Sentiment / Analysis Status */}
-                                            <td className="py-3.5 px-4">
-                                                <AnalysisStatus
-                                                    status={
-                                                        analyzeSingleMutation.isPending &&
-                                                        analyzeSingleMutation.variables === item.id
-                                                            ? "loading"
-                                                            : item.analysis
-                                                            ? "completed"
-                                                            : "idle"
-                                                    }
-                                                    analysis={item.analysis}
-                                                    onAnalyze={() => analyzeSingleMutation.mutate(item.id)}
-                                                    onView={() => {
-                                                        setSelectedFeedbackForAnalysis(item);
-                                                        setIsAnalysisDialogOpen(true);
-                                                    }}
-                                                    disabled={
-                                                        analyzeSingleMutation.isPending ||
-                                                        workspaceAnalysisMutation.isPending ||
-                                                        demoMutation.isPending
-                                                    }
-                                                />
-                                            </td>
-
-                                            {/* Created Date */}
-                                            <td className="py-3.5 px-4 text-right text-zinc-400 dark:text-zinc-500 font-mono">
-                                                {format(new Date(item.createdAt), "MMM d, yyyy")}
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Pagination Controls */}
-                    {data && data.pagination.totalPages > 1 && (
-                        <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/30">
-                            <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                                Showing{" "}
-                                <span className="font-semibold text-zinc-900 dark:text-white">
-                                    {(data.pagination.page - 1) * data.pagination.limit + 1}
-                                </span>{" "}
-                                to{" "}
-                                <span className="font-semibold text-zinc-900 dark:text-white">
-                                    {Math.min(
-                                        data.pagination.page * data.pagination.limit,
-                                        data.pagination.totalItems
-                                    )}
-                                </span>{" "}
-                                of{" "}
-                                <span className="font-semibold text-zinc-900 dark:text-white">
-                                    {data.pagination.totalItems}
-                                </span>{" "}
-                                feedbacks
-                            </span>
-                            <div className="flex items-center space-x-1.5">
-                                <button
-                                    onClick={() => updateUrl({ page: data.pagination.page - 1 })}
-                                    disabled={data.pagination.page <= 1}
-                                    className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-800 dark:hover:text-zinc-200 disabled:opacity-40 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent cursor-pointer"
-                                >
-                                    <ChevronLeft className="w-4 h-4" />
-                                </button>
-                                <span className="text-xs text-zinc-600 dark:text-zinc-400 font-semibold px-2">
-                                    Page {data.pagination.page} of {data.pagination.totalPages}
-                                </span>
-                                <button
-                                    onClick={() => updateUrl({ page: data.pagination.page + 1 })}
-                                    disabled={data.pagination.page >= data.pagination.totalPages}
-                                    className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-800 dark:hover:text-zinc-200 disabled:opacity-40 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent cursor-pointer"
-                                >
-                                    <ChevronRight className="w-4 h-4" />
-                                </button>
-                            </div>
+                isInboxEmpty && !hasActiveFilters ? (
+                    <div className="p-8 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl text-center space-y-5 bg-white/40 dark:bg-zinc-900/40 shadow-4xs max-w-2xl mx-auto py-16 animate-in fade-in duration-300">
+                        <div className="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-850 flex items-center justify-center border border-zinc-250/50 dark:border-zinc-800/80 text-zinc-400 mx-auto">
+                            <Inbox className="w-6 h-6 text-indigo-500" />
                         </div>
-                    )}
-                </div>
+                        <div className="space-y-1.5">
+                            <h3 className="font-black text-sm text-zinc-900 dark:text-white">Your Feedback Inbox is Empty</h3>
+                            <p className="text-xs text-zinc-555 dark:text-zinc-400 max-w-md mx-auto leading-relaxed font-semibold">
+                                Get started by creating a new manual feedback entry or upload your bulk client reports using our CSV Import tool.
+                            </p>
+                        </div>
+                        {!isViewer && (
+                            <div className="flex items-center justify-center gap-3 pt-2">
+                                <button
+                                    onClick={() => setIsImportDialogOpen(true)}
+                                    className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-850 hover:border-zinc-350 dark:hover:border-zinc-700 text-xs font-bold text-zinc-755 dark:text-zinc-300 transition-colors shadow-3xs cursor-pointer"
+                                >
+                                    <Upload className="w-3.5 h-3.5" />
+                                    <span>Import CSV</span>
+                                </button>
+                                <Link
+                                    href="/dashboard/feedback/new"
+                                    className="inline-flex items-center space-x-1.5 px-4.5 py-2 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-100 text-xs font-bold shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+                                >
+                                    <Plus className="w-3.5 h-3.5" />
+                                    <span>Create Feedback</span>
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden animate-in fade-in duration-300">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                                        <th className="py-3.5 px-4 font-semibold w-1/3 md:w-1/2">Content</th>
+                                        <th className="py-3.5 px-4 font-semibold">Channel</th>
+                                        <th className="py-3.5 px-4 font-semibold">Customer Label</th>
+                                        <th className="py-3.5 px-4 font-semibold">Status</th>
+                                        <th className="py-3.5 px-4 font-semibold">Sentiment</th>
+                                        <th className="py-3.5 px-4 font-semibold text-right">Created At</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-xs text-zinc-600 dark:text-zinc-300">
+                                    {isLoading ? (
+                                        // Skeletons matching layout to prevent shifts
+                                        Array.from({ length: 6 }).map((_, i) => (
+                                            <tr key={i} className="animate-pulse">
+                                                <td className="py-4 px-4">
+                                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-11/12" />
+                                                </td>
+                                                <td className="py-4 px-4">
+                                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16" />
+                                                </td>
+                                                <td className="py-4 px-4">
+                                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-20" />
+                                                </td>
+                                                <td className="py-4 px-4">
+                                                    <div className="h-5 bg-zinc-200 dark:bg-zinc-800 rounded-full w-20" />
+                                                </td>
+                                                <td className="py-4 px-4">
+                                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-12" />
+                                                </td>
+                                                <td className="py-4 px-4 text-right">
+                                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-20 ml-auto" />
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : data?.items.length === 0 ? (
+                                        // Empty State inside Table when filters are active
+                                        <tr>
+                                            <td colSpan={6} className="py-12 px-4 text-center">
+                                                <div className="flex flex-col items-center justify-center space-y-3">
+                                                    <div className="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 text-zinc-400">
+                                                        <MessageSquare className="w-6 h-6" />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <h3 className="font-bold text-sm text-zinc-900 dark:text-white">No feedback found</h3>
+                                                        <p className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold">
+                                                            No entries matched your filter parameters. Try expanding your search.
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        onClick={handleClearFilters}
+                                                        className="px-3.5 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs font-bold text-zinc-700 dark:text-zinc-300 transition-all cursor-pointer"
+                                                    >
+                                                        Clear Filters
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        // Feedbacks List
+                                        data?.items.map((item) => (
+                                            <tr
+                                                key={item.id}
+                                                onClick={() => router.push(`/dashboard/feedback/${item.id}`)}
+                                                className="hover:bg-zinc-50 dark:hover:bg-zinc-900/50 cursor-pointer transition-all duration-200 group/row"
+                                            >
+                                                {/* Content with readable layout */}
+                                                <td className="py-3.5 px-4 font-semibold max-w-50 md:max-w-xs relative">
+                                                    <div className="relative group/tooltip inline-block max-w-full">
+                                                        <span className="block truncate text-zinc-900 dark:text-white group-hover/row:text-indigo-650 dark:group-hover/row:text-indigo-400 transition-colors">
+                                                            {item.content}
+                                                        </span>
+                                                        <div className="absolute left-0 bottom-full mb-2 hidden group-hover/tooltip:block z-50 w-72 p-3 bg-zinc-900 text-zinc-150 dark:bg-white dark:text-zinc-900 text-xs rounded-lg shadow-lg border border-zinc-800 dark:border-zinc-200 pointer-events-none wrap-break-word font-medium leading-relaxed">
+                                                            {item.content}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                
+                                                {/* Channel */}
+                                                <td className="py-3.5 px-4 text-zinc-500 dark:text-zinc-455 font-semibold">
+                                                    {formatChannel(item.channel)}
+                                                </td>
+                                                
+                                                {/* Customer Label */}
+                                                <td className="py-3.5 px-4">
+                                                    {item.customerLabel ? (
+                                                        <span className="inline-block px-2.5 py-0.5 rounded bg-zinc-50 dark:bg-zinc-850 border border-zinc-250 dark:border-zinc-750 text-[10px] font-semibold text-zinc-700 dark:text-zinc-350">
+                                                            {item.customerLabel}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-zinc-400 dark:text-zinc-600 font-semibold">—</span>
+                                                    )}
+                                                </td>
+
+                                                {/* Status Badge */}
+                                                <td className="py-3.5 px-4">
+                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getStatusBadgeStyles(item.status)}`}>
+                                                        {formatStatus(item.status)}
+                                                    </span>
+                                                </td>
+
+                                                {/* Sentiment / Analysis Status */}
+                                                <td className="py-3.5 px-4">
+                                                    <AnalysisStatus
+                                                        status={
+                                                            analyzeSingleMutation.isPending &&
+                                                            analyzeSingleMutation.variables === item.id
+                                                                ? "loading"
+                                                                : item.analysis
+                                                                ? "completed"
+                                                                : "idle"
+                                                        }
+                                                        analysis={item.analysis}
+                                                        onAnalyze={() => analyzeSingleMutation.mutate(item.id)}
+                                                        onView={() => {
+                                                            setSelectedFeedbackForAnalysis(item);
+                                                            setIsAnalysisDialogOpen(true);
+                                                        }}
+                                                        disabled={
+                                                            analyzeSingleMutation.isPending ||
+                                                            workspaceAnalysisMutation.isPending ||
+                                                            demoMutation.isPending
+                                                        }
+                                                    />
+                                                </td>
+
+                                                {/* Created Date */}
+                                                <td className="py-3.5 px-4 text-right text-zinc-400 dark:text-zinc-500 font-mono">
+                                                    {format(new Date(item.createdAt), "MMM d, yyyy")}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Pagination Controls */}
+                        {data && data.pagination.totalPages > 1 && (
+                            <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/30">
+                                <span className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold">
+                                    Showing{" "}
+                                    <span className="font-extrabold text-zinc-900 dark:text-white font-mono">
+                                        {(data.pagination.page - 1) * data.pagination.limit + 1}
+                                    </span>{" "}
+                                    to{" "}
+                                    <span className="font-extrabold text-zinc-900 dark:text-white font-mono">
+                                        {Math.min(
+                                            data.pagination.page * data.pagination.limit,
+                                            data.pagination.totalItems
+                                        )}
+                                    </span>{" "}
+                                    of{" "}
+                                    <span className="font-extrabold text-zinc-900 dark:text-white font-mono">
+                                        {data.pagination.totalItems}
+                                    </span>{" "}
+                                    feedbacks
+                                </span>
+                                <div className="flex items-center space-x-1.5">
+                                    <button
+                                        onClick={() => updateUrl({ page: data.pagination.page - 1 })}
+                                        disabled={data.pagination.page <= 1}
+                                        className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-800 dark:hover:text-zinc-200 disabled:opacity-40 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent cursor-pointer"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </button>
+                                    <span className="text-xs text-zinc-650 dark:text-zinc-400 font-bold px-2 font-mono">
+                                        Page {data.pagination.page} of {data.pagination.totalPages}
+                                    </span>
+                                    <button
+                                        onClick={() => updateUrl({ page: data.pagination.page + 1 })}
+                                        disabled={data.pagination.page >= data.pagination.totalPages}
+                                        className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-800 dark:hover:text-zinc-200 disabled:opacity-40 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent cursor-pointer"
+                                    >
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )
             )}
 
             {/* Import Feedback Dialog Modal */}

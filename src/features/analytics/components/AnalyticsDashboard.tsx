@@ -147,13 +147,13 @@ export function AnalyticsDashboard() {
         <main className="grow max-w-6xl w-full mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
             
             {/* Header / Filter Toolbar */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-zinc-200/60 dark:border-zinc-800">
-                <div>
-                    <h1 className="text-xl font-black text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-                        <BarChart3 className="w-5 h-5 text-zinc-800 dark:text-zinc-250 shrink-0" />
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-zinc-200/60 dark:border-zinc-800">
+                <div className="space-y-1">
+                    <h1 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white tracking-tight flex items-center gap-2.5">
+                        <BarChart3 className="w-5.5 h-5.5 text-indigo-500 shrink-0" />
                         <span>Insight Center</span>
                     </h1>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
                         Analyze and drill down on workspace sentiment and trends
                     </p>
                 </div>

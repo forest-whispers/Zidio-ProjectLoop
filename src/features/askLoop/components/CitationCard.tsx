@@ -21,7 +21,7 @@ export function CitationCard({ citation, index }: CitationCardProps) {
     const similarityPercent = Math.round(citation.similarity * 100);
 
     return (
-        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-3xs overflow-hidden flex flex-col justify-between transition-all duration-200 hover:border-zinc-350 dark:hover:border-zinc-755 hover:shadow-2xs">
+        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 border-l-4 border-l-indigo-500/80 bg-white dark:bg-zinc-900 shadow-3xs overflow-hidden flex flex-col justify-between transition-all duration-300 hover:border-zinc-350 dark:hover:border-zinc-700 hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.005]">
             {/* Header info bar */}
             <div className="p-4 border-b border-zinc-100 dark:border-zinc-850 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-zinc-50/20 dark:bg-zinc-950/10">
                 <div className="flex items-center space-x-2 shrink-0">

@@ -36,7 +36,7 @@ export function ReportToolbar({
     }, [selectedRange]);
 
     return (
-        <div className="sticky top-18.25 z-30 p-4 border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-xl shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4 transition-all print:hidden">
+        <div className="p-4 border border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-xl shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4 transition-all print:hidden">
             {/* Range Selector */}
             <div className="flex flex-wrap items-center gap-1.5">
                 <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mr-1.5">Timeframe:</span>

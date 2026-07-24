@@ -28,8 +28,29 @@ import { getStatusBadgeStyles, formatStatus, formatChannel } from "./FeedbackLis
 import { FeedbackStatus, FeedbackChannel } from "@prisma/client";
 import { SentimentBadge } from "./SentimentBadge";
 import { formatFeatureArea } from "./AnalysisSummaryCard";
+import { CustomSelect } from "@/features/shared/ui/CustomSelect";
 
 type UpdateFeedbackFormValues = z.infer<typeof updateFeedbackSchema>;
+
+const STATUS_OPTIONS = [
+    { value: "SUBMITTED", label: "Submitted" },
+    { value: "UNDER_REVIEW", label: "Under Review" },
+    { value: "IN_PROGRESS", label: "In Progress" },
+    { value: "RESOLVED", label: "Resolved" },
+    { value: "CLOSED", label: "Closed" }
+];
+
+const CHANNEL_OPTIONS = [
+    { value: "MANUAL", label: "Manual Entry" },
+    { value: "SUPPORT_TICKET", label: "Support Ticket" },
+    { value: "APP_STORE", label: "App Store" },
+    { value: "PLAY_STORE", label: "Play Store" },
+    { value: "TWITTER", label: "Twitter / X" },
+    { value: "SALES_CALL", label: "Sales Call" },
+    { value: "SURVEY", label: "Survey" },
+    { value: "COMMUNITY", label: "Community Forum" },
+    { value: "CSV_IMPORT", label: "CSV Import" },
+];
 
 export function FeedbackDetailView({ id }: { id: string }) {
     const router = useRouter();
@@ -51,11 +72,15 @@ export function FeedbackDetailView({ id }: { id: string }) {
         register,
         handleSubmit,
         reset,
+        setValue,
+        watch,
         formState: { errors, isValid },
     } = useForm<UpdateFeedbackFormValues>({
         resolver: zodResolver(updateFeedbackSchema),
         mode: "onChange",
     });
+
+    const channelValue = watch("channel");
 
     // Toggle Editing Mode with Form Pre-population
     const handleToggleEdit = () => {
@@ -204,26 +229,14 @@ export function FeedbackDetailView({ id }: { id: string }) {
                     {/* Status Update Dropdown Select */}
                     <div className="relative flex items-center space-x-2">
                         <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Status:</span>
-                        <div className="relative">
-                            <select
+                        <div>
+                            <CustomSelect
                                 value={feedback.status}
                                 disabled={isPending || isEditing}
-                                onChange={(e) => statusMutation.mutate(e.target.value as FeedbackStatus)}
-                                className={`pl-3 pr-8 py-1.5 rounded-lg border text-xs font-bold focus:outline-none appearance-none cursor-pointer border-zinc-200 dark:border-zinc-800 ${
-                                    isEditing 
-                                        ? "opacity-50 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800 text-zinc-500" 
-                                        : "bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200"
-                                }`}
-                            >
-                                <option value="SUBMITTED">Submitted</option>
-                                <option value="UNDER_REVIEW">Under Review</option>
-                                <option value="IN_PROGRESS">In Progress</option>
-                                <option value="RESOLVED">Resolved</option>
-                                <option value="CLOSED">Closed</option>
-                            </select>
-                            <span className="absolute inset-y-0 right-0.5 flex items-center pr-2.5 pointer-events-none text-zinc-400 text-[10px]">
-                                ▼
-                            </span>
+                                onChange={(val) => statusMutation.mutate(val as FeedbackStatus)}
+                                options={STATUS_OPTIONS}
+                                placeholder="Status"
+                            />
                         </div>
                     </div>
                 </div>
@@ -364,26 +377,14 @@ export function FeedbackDetailView({ id }: { id: string }) {
                                     >
                                         Feedback Channel <span className="text-red-500">*</span>
                                     </label>
-                                    <div className="relative">
-                                        <select
-                                            id="channel"
+                                    <div>
+                                        <CustomSelect
+                                            value={channelValue || ""}
                                             disabled={updateMutation.isPending}
-                                            {...register("channel")}
-                                            className="w-full pl-3 pr-8 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-sm bg-zinc-50 dark:bg-zinc-950/30 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-950/10 focus:border-zinc-950 dark:focus:ring-white/10 dark:focus:border-white appearance-none cursor-pointer"
-                                        >
-                                            <option value="MANUAL">Manual Entry</option>
-                                            <option value="SUPPORT_TICKET">Support Ticket</option>
-                                            <option value="APP_STORE">App Store</option>
-                                            <option value="PLAY_STORE">Play Store</option>
-                                            <option value="TWITTER">Twitter / X</option>
-                                            <option value="SALES_CALL">Sales Call</option>
-                                            <option value="SURVEY">Survey</option>
-                                            <option value="COMMUNITY">Community Forum</option>
-                                            <option value="CSV_IMPORT">CSV Import</option>
-                                        </select>
-                                        <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-zinc-400">
-                                            ▼
-                                        </span>
+                                            onChange={(val) => setValue("channel", val as FeedbackChannel, { shouldValidate: true })}
+                                            options={CHANNEL_OPTIONS}
+                                            placeholder="Select Channel"
+                                        />
                                     </div>
                                 </div>
 

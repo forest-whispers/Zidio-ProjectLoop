@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { LogOut, Home, MessageSquare, Loader2, BarChart3, Sparkles, FileText } from "lucide-react";
 import Link from "next/link";
@@ -13,6 +14,19 @@ export default function DashboardLayout({
 }) {
     const { data: session, status } = useSession();
     const pathname = usePathname();
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 20) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     if (status === "loading") {
         return (
@@ -40,8 +54,15 @@ export default function DashboardLayout({
     return (
         <ToastProvider>
             <div className="flex-1 flex flex-col min-h-screen bg-[#fafaf6] dark:bg-[#0a0a09]">
-                {/* Header */}
-                <header className="sticky top-0 z-40 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-[#121210]/80 backdrop-blur-md px-6 py-4 flex items-center justify-between shadow-sm">
+                {/* Header Container Wrapper */}
+                <div className={`sticky top-0 z-40 w-full transition-all duration-300 ${
+                    isScrolled ? "py-3 bg-[#fafaf6]/20 dark:bg-[#0a0a09]/20 backdrop-blur-xs" : "py-0 bg-transparent"
+                }`}>
+                    <header className={`transition-all duration-500 ease-in-out flex items-center justify-between ${
+                        isScrolled
+                            ? "mx-auto w-[93%] max-w-5xl rounded-full border border-zinc-200/80 dark:border-zinc-850 bg-white/85 dark:bg-[#121210]/85 backdrop-blur-md px-6 py-2.5 shadow-md shadow-zinc-150/45 dark:shadow-none"
+                            : "mx-auto w-full max-w-full rounded-none border-b border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-[#121210]/30 backdrop-blur-xs px-6 py-4"
+                    }`}>
                     <div className="flex items-center space-x-8">
                         <Link href="/dashboard" className="flex items-center space-x-2">
                             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black shadow-md shadow-indigo-500/20">
@@ -131,6 +152,7 @@ export default function DashboardLayout({
                         </button>
                     </div>
                 </header>
+            </div>
 
                 {/* Mobile Navigation Bar */}
                 <div className="sm:hidden border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121210] px-4 py-2 flex space-x-2">

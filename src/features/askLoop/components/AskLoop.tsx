@@ -103,13 +103,13 @@ export function AskLoop() {
         <main className="grow max-w-4xl w-full mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
             
             {/* Header toolbar */}
-            <div className="pb-2 border-b border-zinc-200/60 dark:border-zinc-800">
-                <h1 className="text-xl font-black text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-indigo-500 shrink-0" />
+            <div className="pb-4 border-b border-zinc-200/60 dark:border-zinc-800">
+                <h1 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white tracking-tight flex items-center gap-2.5">
+                    <Sparkles className="w-5.5 h-5.5 text-indigo-500 shrink-0" />
                     <span>Ask AI Assistant</span>
                 </h1>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium">
-                    Query grounded insights using workspace context
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium mt-1">
+                    Query grounded insights using natural language workspace context
                 </p>
             </div>
 

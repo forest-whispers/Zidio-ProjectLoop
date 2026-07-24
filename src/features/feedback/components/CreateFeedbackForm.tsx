@@ -9,11 +9,24 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "./toast";
+import { CustomSelect } from "@/features/shared/ui/CustomSelect";
 import { feedbackApi } from "../services/feedback.api";
 import { createFeedbackSchema } from "@/server/modules/feedback/feedback.validation";
 import { FeedbackChannel } from "@prisma/client";
 
 type CreateFeedbackFormValues = z.infer<typeof createFeedbackSchema>;
+
+const CHANNEL_OPTIONS = [
+    { value: "MANUAL", label: "Manual Entry" },
+    { value: "SUPPORT_TICKET", label: "Support Ticket" },
+    { value: "APP_STORE", label: "App Store" },
+    { value: "PLAY_STORE", label: "Play Store" },
+    { value: "TWITTER", label: "Twitter / X" },
+    { value: "SALES_CALL", label: "Sales Call" },
+    { value: "SURVEY", label: "Survey" },
+    { value: "COMMUNITY", label: "Community Forum" },
+    { value: "CSV_IMPORT", label: "CSV Import" },
+];
 
 export function CreateFeedbackForm() {
     const router = useRouter();
@@ -24,6 +37,8 @@ export function CreateFeedbackForm() {
     const {
         register,
         handleSubmit,
+        setValue,
+        watch,
         formState: { errors, isValid },
     } = useForm<CreateFeedbackFormValues>({
         resolver: zodResolver(createFeedbackSchema),
@@ -34,6 +49,8 @@ export function CreateFeedbackForm() {
             customerLabel: "",
         },
     });
+
+    const channelValue = watch("channel");
 
     // TanStack Query Mutation
     const mutation = useMutation({
@@ -111,10 +128,10 @@ export function CreateFeedbackForm() {
                         placeholder="Please write the customer request or feedback here... (Minimum 5 characters)"
                         rows={6}
                         {...register("content")}
-                        className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-zinc-50/50 dark:bg-zinc-950/30 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 transition-all ${
+                        className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-zinc-50/50 dark:bg-zinc-950/30 text-zinc-900 dark:text-white placeholder-zinc-405 focus:outline-none focus:ring-2 transition-all ${
                             errors.content
                                 ? "border-red-400 focus:ring-red-500/20 focus:border-red-500"
-                                : "border-zinc-200 dark:border-zinc-800 focus:ring-zinc-950/10 focus:border-zinc-950 dark:focus:ring-white/10 dark:focus:border-white"
+                                : "border-zinc-200 dark:border-zinc-800 focus:ring-indigo-500/20 focus:border-indigo-500"
                         }`}
                     />
                     {errors.content && (
@@ -134,26 +151,13 @@ export function CreateFeedbackForm() {
                         >
                             Feedback Source Channel <span className="text-red-500">*</span>
                         </label>
-                        <div className="relative">
-                            <select
-                                id="channel"
-                                disabled={isPending}
-                                {...register("channel")}
-                                className="w-full pl-3 pr-8 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-sm bg-zinc-50 dark:bg-zinc-950/30 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-zinc-950/10 focus:border-zinc-950 dark:focus:ring-white/10 dark:focus:border-white appearance-none cursor-pointer"
-                            >
-                                <option value="MANUAL">Manual Entry</option>
-                                <option value="SUPPORT_TICKET">Support Ticket</option>
-                                <option value="APP_STORE">App Store</option>
-                                <option value="PLAY_STORE">Play Store</option>
-                                <option value="TWITTER">Twitter / X</option>
-                                <option value="SALES_CALL">Sales Call</option>
-                                <option value="SURVEY">Survey</option>
-                                <option value="COMMUNITY">Community Forum</option>
-                                <option value="CSV_IMPORT">CSV Import</option>
-                            </select>
-                            <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-zinc-400">
-                                ▼
-                            </span>
+                        <div>
+                            <CustomSelect
+                                value={channelValue}
+                                onChange={(val) => setValue("channel", val as FeedbackChannel, { shouldValidate: true })}
+                                options={CHANNEL_OPTIONS}
+                                placeholder="Select Channel"
+                            />
                         </div>
                         {errors.channel && (
                             <p className="text-xs text-red-500 font-medium animate-in fade-in duration-150">
@@ -176,10 +180,10 @@ export function CreateFeedbackForm() {
                             disabled={isPending}
                             placeholder="e.g. Enterprise Client, User #145"
                             {...register("customerLabel")}
-                            className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-zinc-50/50 dark:bg-zinc-950/30 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 transition-all ${
+                            className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-zinc-50/50 dark:bg-zinc-950/30 text-zinc-900 dark:text-white placeholder-zinc-405 focus:outline-none focus:ring-2 transition-all ${
                                 errors.customerLabel
                                     ? "border-red-400 focus:ring-red-500/20 focus:border-red-500"
-                                    : "border-zinc-200 dark:border-zinc-800 focus:ring-zinc-950/10 focus:border-zinc-950 dark:focus:ring-white/10 dark:focus:border-white"
+                                    : "border-zinc-200 dark:border-zinc-800 focus:ring-indigo-500/20 focus:border-indigo-500"
                             }`}
                         />
                         {errors.customerLabel && (

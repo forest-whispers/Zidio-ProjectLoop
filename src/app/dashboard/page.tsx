@@ -24,7 +24,8 @@ import {
     Brain,
     Upload,
     Plus,
-    AlertCircle
+    AlertCircle,
+    Home
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -101,13 +102,14 @@ export default function DashboardPage() {
             {/* 1. PERSONALIZED GREETING HEADER */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-zinc-200/60 dark:border-zinc-800">
                 <div className="space-y-1">
-                    <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
+                    <h1 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white tracking-tight flex items-center gap-2.5">
+                        <Home className="w-5.5 h-5.5 text-indigo-500 shrink-0" />
                         <span>Welcome back, {user.name}</span>
                         <span className="animate-bounce select-none">👋</span>
                     </h1>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-bold flex items-center gap-1.5">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold flex items-center gap-1.5 mt-0.5">
                         <span>Workspace:</span>
-                        <span className="text-zinc-850 dark:text-zinc-200 font-black">{user.workspace?.name}</span>
+                        <span className="text-zinc-850 dark:text-zinc-205 font-extrabold">{user.workspace?.name}</span>
                         <span className="text-zinc-300 dark:text-zinc-700">|</span>
                         <span>Here's what's happening in your workspace today.</span>
                     </p>
