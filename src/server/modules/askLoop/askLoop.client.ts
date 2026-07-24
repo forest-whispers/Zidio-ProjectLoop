@@ -11,9 +11,7 @@ export async function generateGroundedAnswer(
 ) {
     try {
         const { text } = await generateText({
-
             model: MODEL,
-
             prompt,
         });
 
