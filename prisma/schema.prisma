@@ -126,9 +126,9 @@ model Feedback {
 
   themes FeedbackTheme[]
 
-  analysis FeedbackAnalysis?
-
   embedding FeedbackEmbedding?
+
+  analysis FeedbackAnalysis?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -144,9 +144,10 @@ model FeedbackEmbedding {
 
   model String
 
-  embedding Unsupported("vector")
+  embedding Unsupported("vector(768)")
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([feedbackId])
 }

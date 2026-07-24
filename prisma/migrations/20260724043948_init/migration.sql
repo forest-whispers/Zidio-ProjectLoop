@@ -77,18 +77,6 @@ CREATE TABLE "Feedback" (
 );
 
 -- CreateTable
-CREATE TABLE "FeedbackEmbedding" (
-    "id" TEXT NOT NULL,
-    "feedbackId" TEXT NOT NULL,
-    "provider" TEXT NOT NULL,
-    "model" TEXT NOT NULL,
-    "embedding" vector NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "FeedbackEmbedding_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "FeedbackAnalysis" (
     "id" TEXT NOT NULL,
     "feedbackId" TEXT NOT NULL,
@@ -127,12 +115,6 @@ CREATE UNIQUE INDEX "Theme_workspaceId_name_key" ON "Theme"("workspaceId", "name
 CREATE INDEX "FeedbackTheme_themeId_idx" ON "FeedbackTheme"("themeId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "FeedbackEmbedding_feedbackId_key" ON "FeedbackEmbedding"("feedbackId");
-
--- CreateIndex
-CREATE INDEX "FeedbackEmbedding_feedbackId_idx" ON "FeedbackEmbedding"("feedbackId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "FeedbackAnalysis_feedbackId_key" ON "FeedbackAnalysis"("feedbackId");
 
 -- CreateIndex
@@ -152,9 +134,6 @@ ALTER TABLE "FeedbackTheme" ADD CONSTRAINT "FeedbackTheme_themeId_fkey" FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE "Feedback" ADD CONSTRAINT "Feedback_workspaceId_fkey" FOREIGN KEY ("workspaceId") REFERENCES "Workspace"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "FeedbackEmbedding" ADD CONSTRAINT "FeedbackEmbedding_feedbackId_fkey" FOREIGN KEY ("feedbackId") REFERENCES "Feedback"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "FeedbackAnalysis" ADD CONSTRAINT "FeedbackAnalysis_feedbackId_fkey" FOREIGN KEY ("feedbackId") REFERENCES "Feedback"("id") ON DELETE CASCADE ON UPDATE CASCADE;
