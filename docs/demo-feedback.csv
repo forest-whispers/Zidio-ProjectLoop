@@ -1,0 +1,111 @@
+content,channel,customerLabel
+Zidio-ProjectLoop has solved our theme aggregation bottleneck. We can easily associate requests to themes.,SALES_CALL,Key Enterprise Client
+The main dashboard takes more than 5 seconds to load when switching between views. This is slowing down our daily standups.,SUPPORT_TICKET,Enterprise Account A
+API response times for the feedback list endpoint are very high. Can we look into optimizing database queries?,COMMUNITY,Developer User
+"CSV exports are hitting timeout errors when downloading datasets larger than 10,000 rows. We need this for weekly reporting.",SUPPORT_TICKET,Analytics Lead
+Overall page transitions feel a bit sluggish on low-end laptops. Let's optimize client-side bundle size.,SURVEY,
+Database sync is occasionally locking up the UI during imports. Can we run imports asynchronously in the background?,MANUAL,Product Manager
+Querying historical data is extremely slow. We need better indexes on the createdAt and status fields.,SUPPORT_TICKET,System Admin
+The chart rendering on the analytics tab lags when there are too many data points. Let's add debouncing or aggregate data.,COMMUNITY,
+Extremely fast and snappy app! The recent performance updates really made a huge difference.,TWITTER,SaaS Influencer
+Search queries take too long to resolve when using multiple filter tags concurrently.,PLAY_STORE,Android User
+Exporting large PDF reports is slow and sometimes fails completely without showing any error message.,SUPPORT_TICKET,Enterprise Account B
+Please add dark mode. The bright white layout is hurting my eyes during late-night reviews.,COMMUNITY,Power User
+The dark mode implementation is inconsistent. Some borders and input placeholders remain bright white.,APP_STORE,iOS Reviewer
+I absolutely love the dark theme! It looks super sleek and premium. Great work on the design.,TWITTER,Design Enthusiast
+Login and register screens are missing dark mode support. They are blindingly bright compared to the main dashboard.,SURVEY,
+High-contrast accessibility theme requested for users with low vision. The current light mode gray-on-white text is hard to read.,SUPPORT_TICKET,Compliance Officer
+Some charts in dark mode have poor color contrast. The dark blue text on a black background is unreadable.,COMMUNITY,Analyst
+Auto-detect system theme setting for light/dark mode is not working on mobile Safari.,PLAY_STORE,Safari Mobile User
+The theme toggle button should be easier to find. Maybe place it in the main sidebar instead of nested in settings.,SURVEY,
+Custom color theme options would be amazing. Let us set primary brand colors for our workspace.,SALES_CALL,Prospective Client
+Toggle dark mode instantly causes a brief white flash during layout repaint. Please fix the CSS variables loading order.,COMMUNITY,
+The sidebar navigation is completely broken on iPhone 13. I cannot open the menu at all in portrait mode.,APP_STORE,iOS User
+Tables do not scroll horizontally on mobile screens. The content is clipped and cut off.,PLAY_STORE,Mobile Tester
+Touch targets for edit and delete buttons are too small on mobile. I keep clicking the wrong row.,SURVEY,
+Having trouble using the CSV import interface on my iPad. Drag and drop doesn't work well on tablet browsers.,SUPPORT_TICKET,Operations Manager
+The mobile app is really intuitive. Love being able to check customer requests on the go.,APP_STORE,iOS Reviewer
+Filter dropdown menus open off-screen on smaller mobile viewports. Needs auto-repositioning logic.,PLAY_STORE,
+The loading animation on mobile takes up the whole screen and blocks back navigation.,COMMUNITY,Mobile Developer
+Please optimize the layout for smaller phone screens. The workspace list overlaps with the header text.,SURVEY,
+Push notifications on iOS are delayed by several minutes. Makes real-time collaboration difficult.,SUPPORT_TICKET,Support Agent
+"Great responsiveness on the main dashboard, but the settings panel is still difficult to navigate on mobile.",APP_STORE,
+"Partial search queries are not returning any results. If I search 'dash', it should find 'dashboard'.",COMMUNITY,Product Lead
+We need the ability to save search filter combinations. Selecting the same status and channel filters every morning is tedious.,SUPPORT_TICKET,Support Lead
+The search bar should highlight matching text inside the feedback content column.,SURVEY,
+Clear filters action is missing a shortcut key. Let us press Escape to clear search and filters.,COMMUNITY,
+Filter count indicator would be helpful. Show how many items are in 'Under Review' next to the option.,SURVEY,Analyst User
+"Searching by customer label is case-sensitive, which makes it hard to find entries. It should be case-insensitive.",SUPPORT_TICKET,Customer Success
+Cannot search for feedback entries that have empty customer labels. Please add a 'No Label' filter option.,COMMUNITY,
+The channel filter dropdown is missing an option for CSV imports. It's listed in the schema but not in the UI.,MANUAL,Quality Tester
+Search is incredibly fast now! Finding specific tickets takes less than a second.,TWITTER,Happy Customer
+Search results are reset whenever I edit a feedback entry. I lose my place in the list.,SUPPORT_TICKET,Lead Analyst
+I am getting way too many email notifications. Please let us customize notification frequency or opt-out completely.,SUPPORT_TICKET,Notifications Manager
+Slack integration is highly requested. We want feedback alerts streamed directly into our product channels.,SALES_CALL,Enterprise Prospect
+Mentioning teammates using @name does not send them any alert. Is this feature implemented yet?,COMMUNITY,Collaboration User
+In-app notifications don't mark themselves as read automatically when I click on them. I have to click 'Mark all as read'.,PLAY_STORE,
+Weekly digest emails are empty if no new feedback was submitted. It shouldn't send an empty email.,SURVEY,
+Desktop notifications ask for permission every single time the tab is reloaded on Chrome.,COMMUNITY,Chrome User
+The notification bell icon should show a badge with the exact number of unread alerts instead of just a dot.,SURVEY,
+We need webhook support for feedback events so we can trigger custom internal Slack notifications.,SUPPORT_TICKET,Tech Lead
+Notifications for status changes (e.g. Under Review -> Resolved) are not being sent to the original creator.,COMMUNITY,Beta Tester
+Can we disable email alerts for views we aren't assigned to? Our inbox is overflowing.,SUPPORT_TICKET,Enterprise Partner
+The CSV import tool returns validation errors but doesn't tell us which column failed. The error message is too generic.,SUPPORT_TICKET,Data Ops
+CSV template has headers that mismatch what the API validation expects. Took me an hour to figure out the casing.,COMMUNITY,
+Need Zendesk integration. Manually copying customer tickets into LOOP is a waste of time.,SALES_CALL,VP of Support
+Intercom integration request. We want to sync conversations marked with tag 'feedback' directly to LOOP.,COMMUNITY,Product Manager
+Importing CSV with UTF-8 characters breaks the content parsing. Emojis and accented letters become corrupt.,SUPPORT_TICKET,Global Ops
+Can we export feedback in JSON format instead of just CSV? We want to plug it into our custom analytics pipeline.,COMMUNITY,Data Scientist
+CSV import doesn't let us map columns dynamically. We have to rename our spreadsheet fields to match your format exactly.,SURVEY,
+Demo data import is great for testing features quickly! Very helpful onboarding tool.,TWITTER,Dev Evaluator
+We need an export API endpoint so we can fetch all resolved feedbacks automatically every night.,SUPPORT_TICKET,DevOps Engineer
+The CSV import summary should display how many duplicates were ignored during ingestion.,COMMUNITY,
+AI sentiment classification is tag-based? We need a numerical sentiment score to track trends over time.,COMMUNITY,AI Engineer
+Auto-clustering feedbacks by topic would be an amazing feature. We have thousands of entries to organize.,SALES_CALL,Enterprise Account C
+The sentiment analysis sometimes classifies bug reports as negative when they are just factual statements.,SURVEY,
+We need a dashboard view showing sentiment trends per channel (e.g. Twitter vs Support Ticket).,SUPPORT_TICKET,VP of Product
+The AI summary feature is super helpful. Saves us hours of reading through long support tickets.,TWITTER,SaaS Founder
+Can we train the AI classifier on our custom taxonomy? 'Billing' vs 'Pricing' is a subtle difference for a general model.,COMMUNITY,Product Analyst
+Analytics graphs are missing a filter for Customer Label. We only want to see sentiment for Enterprise users.,SUPPORT_TICKET,Enterprise Lead
+The AI tag suggestions are occasionally irrelevant. There should be a way to reject or override them in the UI.,SURVEY,
+AI processing takes a long time to trigger. It sits in 'Pending' for up to 5 minutes after CSV upload.,COMMUNITY,
+Is there an AI analytics endpoint we can query to get overall monthly sentiment trends?,SUPPORT_TICKET,Tech Partner
+We need to assign feedback items to specific team members. Right now anyone can edit anything.,SUPPORT_TICKET,Team Lead
+Can we add internal comments to feedback items? We want to discuss requests before changing their status.,COMMUNITY,Product Designer
+Activity log is missing. I want to see who changed a feedback status from Under Review to Closed.,SUPPORT_TICKET,Workspace Admin
+"Jira sync request. When we set a feedback status to IN_PROGRESS, it should create a ticket in Jira automatically.",SALES_CALL,Prospective Client
+Users should be able to upvote existing feedbacks so we can see which requests are most popular.,COMMUNITY,Community Mod
+Need to link multiple feedbacks together. Customers often request the same thing in slightly different ways.,SUPPORT_TICKET,Support Agent
+Beautiful collaboration features. The real-time updates are working perfectly.,TWITTER,Design Lead
+Is there a way to lock a feedback item so others can't edit it while I am writing a response?,COMMUNITY,
+"We need custom roles. Analysts should only be allowed to tag feedback, not delete them.",SUPPORT_TICKET,Workspace Owner
+Merging duplicate feedbacks should combine their theme assignments and customer labels automatically.,SURVEY,
+Support for SAML SSO is a hard requirement for our security review. We cannot adopt LOOP without it.,SALES_CALL,Security Team
+"The login session expires too quickly. I have to log back in every hour, which is disruptive.",COMMUNITY,Heavy User
+Multi-factor authentication (MFA) setup is missing. Our team security guidelines require this for all tools.,SUPPORT_TICKET,Security Lead
+Password reset emails are getting flagged as spam by Google Workspace. Please check your domain SPF/DKIM records.,COMMUNITY,
+The registration page keeps throwing an error when I try to sign up with a valid email. The error message doesn't help.,SUPPORT_TICKET,
+Is there an IP whitelist feature for workspace access control? We want to restrict logins to our office VPN.,SALES_CALL,Compliance Manager
+Can we restrict invite links to specific domains (e.g. only allow @company.com emails to join)?,SUPPORT_TICKET,HR Manager
+Session hijack protection or concurrent session limits would be great additions for security compliance.,COMMUNITY,SecOps Analyst
+"Password requirements are too loose. We should enforce symbol, number, and uppercase checks.",SURVEY,
+SSO login flows redirect back to the home page instead of the path I originally bookmarked.,SUPPORT_TICKET,Partner Lead
+The text editor inside the feedback detail screen keeps stripping out empty lines and formatting.,APP_STORE,iOS Reviewer
+"Clicking 'Save Changes' on edit form sometimes does nothing. No loading spinner, no error banner, just freezes.",PLAY_STORE,Android User
+"The customer label is capped at 100 characters, but the UI doesn't stop us from typing more, causing database errors on submit.",MANUAL,QA Engineer
+Status dropdown sometimes resets to 'Submitted' after saving inline edits. Database updates but UI is wrong.,COMMUNITY,
+The delete confirmation modal closes when clicking outside the dialog box. This is dangerous and can lead to accidental deletion.,SURVEY,
+Borders inside the feedback table are misaligned in dark mode. Looks like a CSS margin issue.,COMMUNITY,
+"The app crashed completely when I pasted a 10,000 character feedback. It should warn us of the limit instead.",SUPPORT_TICKET,Lead Analyst
+Hover tooltip on table content column is delayed by several seconds. Can we make it display instantly?,SURVEY,
+Clicking row to view details doesn't open in a new tab when using Ctrl+Click or middle click.,COMMUNITY,Developer
+Theme colors are not updating in real-time when custom themes are added. I have to force reload the page.,SUPPORT_TICKET,
+This tool has completely transformed how we handle client requests. Super clean UI and dead simple workflows.,TWITTER,SaaS Founder
+The speed of the application is impressive. Snappiest SaaS feedback tool I've tested so far.,APP_STORE,iOS User
+Customer labels and channels are perfect for organizing our feedback database. Very intuitive.,PLAY_STORE,
+Beautiful design aesthetics. The subtle gradients and dark theme are premium and look amazing.,TWITTER,UX Critic
+We imported 500 tickets in under 10 seconds. Ingestion performance is stellar.,SUPPORT_TICKET,Operations Analyst
+So simple to onboard our support agents. Literally took them 5 minutes to learn how to log feedback.,COMMUNITY,CS Manager
+Love the custom validation errors on CSV upload. Makes correcting formatting errors extremely easy.,COMMUNITY,Data Quality Lead
+"Great support docs. Everything was documented perfectly, making setup a breeze.",SURVEY,
+"Best feedback client I have used. Clean, simple, fast, and does exactly what it says on the box.",TWITTER,Tech Blogger

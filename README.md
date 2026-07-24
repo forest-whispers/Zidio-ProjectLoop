@@ -6,8 +6,6 @@
 
 Transform scattered customer feedback into prioritized product insights using AI, semantic search, vector embeddings, and retrieval-augmented generation.
 
-<!-- Replace with project banner -->
-
 <br/>
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs)
@@ -27,7 +25,6 @@ Transform scattered customer feedback into prioritized product insights using AI
 <br/>
 
 <!-- Live Demo -->
-<!-- Documentation -->
 
 </div>
 
@@ -74,31 +71,67 @@ Instead of manually reading hundreds of tickets, product managers can understand
 
 # Product Preview
 
-> Product screenshots will be added after deployment.
-
 ### Dashboard
 
-<p align="center">
-<img src="./assets/dashboard.png" alt="Dashboard"/>
-</p>
+<table>
+  <tr>
+    <td colspan="2" align="center">
+      <strong>Dashboard</strong>
+    </td>
+  </tr>
+  <tr>
+    <td><img src="./assets/product-preview/loopDashboard-1.png" alt="Preview 10" width="100%"></td>
+    <td><img src="./assets/product-preview/loopDashboard-2.png" alt="Preview 11" width="100%"></td>
+  </tr>
+</table>
 
 ### Feedback Inbox
 
 <p align="center">
-<img src="./assets/feedback.png" alt="Feedback"/>
+<img src="./assets/product-preview/loopFeedbackInbox.png" alt="Feedback"/>
 </p>
 
 ### AI Analysis
 
-<p align="center">
-<img src="./assets/analysis.png" alt="Analysis"/>
-</p>
+<table>
+  <tr>
+    <td colspan="2" align="center">
+      <strong>Analysis</strong>
+    </td>
+  </tr>
+  <tr>
+    <td><img src="./assets/product-preview/loopAnalysis-1.png" alt="Preview 10" width="100%"></td>
+    <td><img src="./assets/product-preview/loopAnalysis-2.png" alt="Preview 11" width="100%"></td>
+  </tr>
+</table>
 
 ### Executive Reports
 
-<p align="center">
-<img src="./assets/report.png" alt="Executive Report"/>
-</p>
+<table>
+  <tr>
+    <td colspan="3" align="center">
+      <strong>Report</strong>
+    </td>
+  </tr>
+  <tr>
+    <td><img src="./assets/product-preview/loopReport-1.png" alt="Preview 10" width="100%"></td>
+    <td><img src="./assets/product-preview/loopReport-2.png" alt="Preview 11" width="100%"></td>
+  </tr>
+</table>
+
+### Analytics
+
+<table>
+  <tr>
+    <td colspan="2" align="center">
+      <strong>Analytics</strong>
+    </td>
+  </tr>
+  <tr>
+    <td><img src="./assets/product-preview/loopAnalytics-1.png" alt="Preview 10" width="100%"></td>
+    <td><img src="./assets/product-preview/loopAnalytics-2.png" alt="Preview 11" width="100%"></td>
+  </tr>
+</table>
 
 ---
 
