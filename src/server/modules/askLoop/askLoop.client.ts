@@ -37,6 +37,12 @@ export async function generateQuestionEmbedding(
             model: EMBEDDING_MODEL,
 
             value: question,
+
+            providerOptions: {
+                google: {
+                    outputDimensionality: 768,
+                },
+            },
         });
 
         return embedding;   

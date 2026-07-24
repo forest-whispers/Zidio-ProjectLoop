@@ -9,8 +9,8 @@ import {
 
 import {
     saveEmbedding,
-    findNearestFeedbacks,
 } from "./analysis.cache";
+import { findNearestFeedbacks } from "@/server/shared/lib/vector-search";
 
 import type { AnalysisResult } from "./analysis.types";
 

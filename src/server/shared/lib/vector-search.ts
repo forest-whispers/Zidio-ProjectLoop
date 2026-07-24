@@ -105,7 +105,7 @@ export async function findNearestFeedbacks({
     WHERE
         f."workspaceId" = ${workspaceId}
         AND 1 - (fe.embedding <=> ${JSON.stringify(embedding)}::vector) >= ${similarityThreshold}
-    GROUP BY fe."feedbackId", fe.embedding, fa.sentiment, fa."sentimentScore", fa.summary, fa."featureArea", fa.keywords
+    GROUP BY fe."feedbackId", fe.embedding, f.content, f.channel, fa.sentiment, fa."sentimentScore", fa.summary, fa."featureArea", fa.keywords
     ORDER BY fe.embedding <=> ${JSON.stringify(embedding)}::vector
     LIMIT ${limit}
     `;

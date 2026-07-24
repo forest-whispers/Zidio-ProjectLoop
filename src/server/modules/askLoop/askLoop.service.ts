@@ -24,6 +24,7 @@ export async function askLoop(
             workspaceId,
             embedding,
             limit: 8,
+            similarityThreshold: 0.3, // Lower threshold for general QA semantic matching
         });
 
     const citations: Citation[] =
