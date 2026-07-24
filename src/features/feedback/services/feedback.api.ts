@@ -29,6 +29,7 @@ export interface Feedback {
     sentimentScore: number | null;
     workspaceId: string;
     themes?: FeedbackTheme[];
+    analysis?: FeedbackAnalysis | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -162,7 +163,36 @@ export const feedbackApi = {
         });
         return handleResponse<DemoImportResult>(response);
     },
+
+    async analyzeFeedback(feedbackId: string): Promise<FeedbackAnalysis> {
+        const response = await fetch(`/api/analysis/${feedbackId}`, {
+            method: "POST",
+        });
+        return handleResponse<FeedbackAnalysis>(response);
+    },
+
+    async analyzeWorkspace(): Promise<FeedbackAnalysis[]> {
+        const response = await fetch("/api/analysis/workspace", {
+            method: "POST",
+        });
+        return handleResponse<FeedbackAnalysis[]>(response);
+    },
 };
+
+export interface FeedbackAnalysis {
+    id: string;
+    feedbackId: string;
+    sentiment: "POSITIVE" | "NEUTRAL" | "NEGATIVE";
+    sentimentScore: number;
+    summary: string;
+    featureArea: string;
+    keywords: string[];
+    provider: string;
+    model: string;
+    processingTimeMs: number | null;
+    cached: boolean;
+    analyzedAt: string;
+}
 
 export interface CsvImportError {
     row: number;

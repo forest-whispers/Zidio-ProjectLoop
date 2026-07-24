@@ -17,7 +17,7 @@ export const POST = createRouteHandler(
 
         const workspace = await prisma.workspace.findFirst({
             where: {
-                id: session.user.id,
+                id: session.user.workspace.id,
             },
             select: {
                 id: true,

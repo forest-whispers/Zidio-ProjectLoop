@@ -17,6 +17,8 @@ import type { AnalysisResult } from "./analysis.types";
 import { ANALYSIS_CONSTANTS } from "./analysis.constants";
 import { NotFoundError } from "@/server/shared/errors/errors";
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function persistAnalysis(
     feedbackId: string,
     workspaceId: string,
@@ -129,13 +131,13 @@ export async function analyzeFeedbackById(
         feedback.content
     );
 
-    // Generate embedding
+    // Generate embedding first
     const embedding = await generateEmbedding(
         normalized
     );
     console.log("generated embeddings", embedding)
 
-    // Semantic cache
+    // Search semantic cache
     const [cached] = await findNearestFeedbacks({
         workspaceId: feedback.workspaceId,
         embedding,
@@ -143,15 +145,6 @@ export async function analyzeFeedbackById(
     });
 
     // Save embedding immediately insetead of waiting for analysis to finish, anyhow where failed or not, cache hit can occur if failed
-    await saveEmbedding({
-        feedbackId,
-
-        provider: ANALYSIS_CONSTANTS.EMBEDDING_PROVIDER,
-
-        model: ANALYSIS_CONSTANTS.EMBEDDING_MODEL_NAME,
-
-        embedding,
-    });
 
     // Cache hit? Reuse analysis
     if (
@@ -160,11 +153,22 @@ export async function analyzeFeedbackById(
         ANALYSIS_CONSTANTS.DEFAULT_SIMILARITY_THRESHOLD
     ) {
         console.log("feedback analysis returned from cached similarities")
-        return reuseCachedAnalysis(
+
+        // Save analysis AND embedding
+        const savedAnalysis = await reuseCachedAnalysis(
             feedbackId,
             feedback.workspaceId,
             cached.analysis
         );
+
+        await saveEmbedding({
+            feedbackId,
+            provider: ANALYSIS_CONSTANTS.EMBEDDING_PROVIDER,
+            model: ANALYSIS_CONSTANTS.EMBEDDING_MODEL_NAME,
+            embedding,
+        });
+
+        return savedAnalysis;
     }
 
     // otherwise make analysis
@@ -174,16 +178,25 @@ export async function analyzeFeedbackById(
 
     console.log("feedback analyzed")
 
-    // persist analysis
-    return persistAnalysis(
+    // persist analysis and embeddings
+    const savedAnalysis = await persistAnalysis(
         feedbackId,
         feedback.workspaceId,
         analysis
     );
+
+    await saveEmbedding({
+        feedbackId,
+        provider: ANALYSIS_CONSTANTS.EMBEDDING_PROVIDER,
+        model: ANALYSIS_CONSTANTS.EMBEDDING_MODEL_NAME,
+        embedding,
+    });
+
+    return savedAnalysis;
 }
 
 // Analyzes all unanalyzed feedback entries within a given workspace.
-export async function analyzeWorkspace(workspaceId: string) {
+export async function analyzeWorkspace(workspaceId: string, batchSize = 10) {
     // Get all feedback without analysis in the workspace
     const unanalyzedFeedbacks = await prisma.feedback.findMany({
         where: {
@@ -193,6 +206,7 @@ export async function analyzeWorkspace(workspaceId: string) {
         select: {
             id: true,
         },
+        take: batchSize, // Protect against huge payloads
     });
 
     const results = [];
@@ -202,6 +216,8 @@ export async function analyzeWorkspace(workspaceId: string) {
         try {
             const analysis = await analyzeFeedbackById(feedback.id);
             results.push(analysis);
+
+            await delay(500);
         } catch (error) {
             console.error(
                 `[analyzeWorkspace] Failed to analyze feedback ${feedback.id}:`,

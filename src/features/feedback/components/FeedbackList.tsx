@@ -15,14 +15,17 @@ import {
     Sparkles, 
     FileSpreadsheet, 
     Download,
-    Loader2
+    Loader2,
+    Brain
 } from "lucide-react";
 import { format } from "date-fns";
 import { FeedbackChannel, FeedbackStatus } from "@prisma/client";
-import { feedbackApi, FeedbackFilters } from "../services/feedback.api";
+import { feedbackApi, FeedbackFilters, Feedback } from "../services/feedback.api";
 import { useState, useEffect } from "react";
 import { useToast } from "./toast";
 import { ImportFeedbackDialog } from "./ImportFeedbackDialog";
+import { AnalysisStatus } from "./AnalysisStatus";
+import { FeedbackAnalysisDialog } from "./FeedbackAnalysisDialog";
 
 // Status Badge Styling Helper
 export function getStatusBadgeStyles(status: FeedbackStatus) {
@@ -78,6 +81,8 @@ export function FeedbackList() {
 
     // Dialog state
     const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+    const [selectedFeedbackForAnalysis, setSelectedFeedbackForAnalysis] = useState<Feedback | null>(null);
+    const [isAnalysisDialogOpen, setIsAnalysisDialogOpen] = useState(false);
 
     // Read initial filters from URL params
     const searchVal = searchParams.get("search") || "";
@@ -135,6 +140,51 @@ export function FeedbackList() {
         },
     });
 
+    // AI Single Feedback Analysis Mutation
+    const analyzeSingleMutation = useMutation({
+        mutationFn: feedbackApi.analyzeFeedback,
+        onSuccess: (res, feedbackId) => {
+            toast({
+                title: "Feedback Analyzed",
+                description: "AI analysis completed successfully for this feedback item.",
+                variant: "success",
+            });
+            queryClient.invalidateQueries({ queryKey: ["feedbacks"] });
+            queryClient.invalidateQueries({ queryKey: ["feedback", feedbackId] });
+        },
+        onError: (err: any) => {
+            toast({
+                title: "Analysis Failed",
+                description: err.message || "Failed to analyze feedback item.",
+                variant: "destructive",
+            });
+        },
+    });
+
+    // AI Workspace Bulk Analysis Mutation
+    const workspaceAnalysisMutation = useMutation({
+        mutationFn: feedbackApi.analyzeWorkspace,
+        onSuccess: (res) => {
+            const newlyAnalyzed = res.length;
+            const totalItems = data?.pagination.totalItems || 0;
+            const alreadyAnalyzed = Math.max(0, totalItems - newlyAnalyzed);
+
+            toast({
+                title: "Analysis Completed",
+                description: `Analysis complete. ${newlyAnalyzed} feedback items analyzed. ${alreadyAnalyzed} were already analyzed.`,
+                variant: "success",
+            });
+            queryClient.invalidateQueries({ queryKey: ["feedbacks"] });
+        },
+        onError: (err: any) => {
+            toast({
+                title: "Bulk Analysis Failed",
+                description: err.message || "Failed to analyze workspace feedback items.",
+                variant: "destructive",
+            });
+        },
+    });
+
     // Update URL helper
     const updateUrl = (newParams: Record<string, string | number | null | undefined>) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -182,7 +232,7 @@ export function FeedbackList() {
                     <button
                         type="button"
                         onClick={() => setIsImportDialogOpen(true)}
-                        disabled={demoMutation.isPending}
+                        disabled={demoMutation.isPending || workspaceAnalysisMutation.isPending}
                         className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-semibold bg-white dark:bg-zinc-900 shadow-xs cursor-pointer disabled:opacity-50 transition-colors"
                     >
                         <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-500" />
@@ -191,7 +241,7 @@ export function FeedbackList() {
                     <button
                         type="button"
                         onClick={() => demoMutation.mutate()}
-                        disabled={demoMutation.isPending}
+                        disabled={demoMutation.isPending || workspaceAnalysisMutation.isPending}
                         className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-semibold bg-white dark:bg-zinc-900 shadow-xs cursor-pointer disabled:opacity-50 transition-colors"
                     >
                         {demoMutation.isPending ? (
@@ -200,6 +250,19 @@ export function FeedbackList() {
                             <Download className="w-3.5 h-3.5 text-indigo-500" />
                         )}
                         <span>Demo Import</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => workspaceAnalysisMutation.mutate()}
+                        disabled={workspaceAnalysisMutation.isPending || demoMutation.isPending}
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-300 text-xs font-semibold bg-white dark:bg-zinc-900 shadow-xs cursor-pointer disabled:opacity-50 transition-colors"
+                    >
+                        {workspaceAnalysisMutation.isPending ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-500" />
+                        ) : (
+                            <Brain className="w-3.5 h-3.5 text-indigo-500" />
+                        )}
+                        <span>Analyze Remaining</span>
                     </button>
 
                     <Link
@@ -424,15 +487,29 @@ export function FeedbackList() {
                                                 </span>
                                             </td>
 
-                                            {/* Sentiment Badge (AI Placeholder) */}
+                                            {/* Sentiment / Analysis Status */}
                                             <td className="py-3.5 px-4">
-                                                <span 
-                                                    title="Sentiment will be classified automatically by AI in the next phase"
-                                                    className="inline-flex items-center space-x-1 text-[10px] text-zinc-400 dark:text-zinc-600 font-semibold"
-                                                >
-                                                    <Sparkles className="w-3 h-3 text-zinc-300 dark:text-zinc-700" />
-                                                    <span>Pending AI</span>
-                                                </span>
+                                                <AnalysisStatus
+                                                    status={
+                                                        analyzeSingleMutation.isPending &&
+                                                        analyzeSingleMutation.variables === item.id
+                                                            ? "loading"
+                                                            : item.analysis
+                                                            ? "completed"
+                                                            : "idle"
+                                                    }
+                                                    analysis={item.analysis}
+                                                    onAnalyze={() => analyzeSingleMutation.mutate(item.id)}
+                                                    onView={() => {
+                                                        setSelectedFeedbackForAnalysis(item);
+                                                        setIsAnalysisDialogOpen(true);
+                                                    }}
+                                                    disabled={
+                                                        analyzeSingleMutation.isPending ||
+                                                        workspaceAnalysisMutation.isPending ||
+                                                        demoMutation.isPending
+                                                    }
+                                                />
                                             </td>
 
                                             {/* Created Date */}
@@ -496,6 +573,17 @@ export function FeedbackList() {
                 isOpen={isImportDialogOpen} 
                 onClose={() => setIsImportDialogOpen(false)} 
                 onSuccess={() => queryClient.invalidateQueries({ queryKey: ["feedbacks"] })}
+            />
+
+            {/* AI Analysis Dialog Modal */}
+            <FeedbackAnalysisDialog
+                isOpen={isAnalysisDialogOpen}
+                onClose={() => {
+                    setIsAnalysisDialogOpen(false);
+                    setSelectedFeedbackForAnalysis(null);
+                }}
+                feedback={selectedFeedbackForAnalysis}
+                analysis={selectedFeedbackForAnalysis?.analysis || null}
             />
         </div>
     );

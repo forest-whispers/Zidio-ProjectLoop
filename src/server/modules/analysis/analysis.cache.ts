@@ -61,11 +61,13 @@ export async function saveEmbedding({
     await prisma.$executeRaw`
     INSERT INTO "FeedbackEmbedding"
     (
-        id,
+        "id",
         "feedbackId",
-        provider,
-        model,
-        embedding
+        "provider",
+        "model",
+        "embedding",
+        "createdAt",
+        "updatedAt"
     )
     VALUES
     (
@@ -73,13 +75,16 @@ export async function saveEmbedding({
         ${feedbackId},
         ${provider},
         ${model},
-        ${JSON.stringify(embedding)}::vector
+        ${JSON.stringify(embedding)}::vector,
+        NOW(),
+        NOW()
     )
     ON CONFLICT ("feedbackId")
     DO UPDATE SET
-        provider = EXCLUDED.provider,
-        model = EXCLUDED.model,
-        embedding = EXCLUDED.embedding;
+        "provider" = EXCLUDED."provider",
+        "model" = EXCLUDED."model",
+        "embedding" = EXCLUDED."embedding",
+        "updatedAt" = NOW();
 `;
 }
 
@@ -115,54 +120,82 @@ export async function findNearestFeedbacks({
             featureArea: string;
 
             keywords: string[];
+
+            themes: string[];
         }>
-    >`
+    >
+    // `
+    // SELECT
+
+    // fe."feedbackId",
+
+    // 1 - (fe.embedding <=> ${JSON.stringify(
+    //         embedding
+    //     )}::vector) AS similarity,
+
+    // fa.sentiment,
+
+    // fa."sentimentScore",
+
+    // fa.summary,
+
+    // fa."featureArea",
+
+    // fa.keywords
+
+    // FROM "FeedbackEmbedding" fe
+
+    // JOIN "FeedbackAnalysis" fa
+
+    // ON fa."feedbackId" = fe."feedbackId"
+
+    // JOIN "Feedback" f
+
+    // ON f.id = fe."feedbackId"
+
+    // WHERE
+
+    // f."workspaceId" = ${workspaceId}
+
+    // AND
+
+    // 1 - (fe.embedding <=> ${JSON.stringify(
+    //         embedding
+    //     )}::vector)
+
+    // >= ${similarityThreshold}
+
+    // ORDER BY
+
+    // fe.embedding <=> ${JSON.stringify(
+    //         embedding
+    //     )}::vector
+
+    // LIMIT ${limit}
+    // `;
+        `
     SELECT
-
-    fe."feedbackId",
-
-    1 - (fe.embedding <=> ${JSON.stringify(
-            embedding
-        )}::vector) AS similarity,
-
-    fa.sentiment,
-
-    fa."sentimentScore",
-
-    fa.summary,
-
-    fa."featureArea",
-
-    fa.keywords
-
+        fe."feedbackId",
+        1 - (fe.embedding <=> ${JSON.stringify(embedding)}::vector) AS similarity,
+        fa.sentiment,
+        fa."sentimentScore",
+        fa.summary,
+        fa."featureArea",
+        fa.keywords,
+        COALESCE(
+            ARRAY_AGG(t.name) FILTER (WHERE t.name IS NOT NULL), 
+            ARRAY[]::text[]
+        ) AS themes
     FROM "FeedbackEmbedding" fe
-
-    JOIN "FeedbackAnalysis" fa
-
-    ON fa."feedbackId" = fe."feedbackId"
-
-    JOIN "Feedback" f
-
-    ON f.id = fe."feedbackId"
-
+    JOIN "FeedbackAnalysis" fa ON fa."feedbackId" = fe."feedbackId"
+    JOIN "Feedback" f ON f.id = fe."feedbackId"
+    LEFT JOIN "FeedbackTheme" ft ON ft."feedbackId" = fe."feedbackId"
+    LEFT JOIN "Theme" t ON t.id = ft."themeId"
     WHERE
-
-    f."workspaceId" = ${workspaceId}
-
-    AND
-
-    1 - (fe.embedding <=> ${JSON.stringify(
-            embedding
-        )}::vector)
-
-    >= ${similarityThreshold}
-
-    ORDER BY
-
-    fe.embedding <=> ${JSON.stringify(
-            embedding
-        )}::vector
-
+        f."workspaceId" = ${workspaceId}
+        AND 1 - (fe.embedding <=> ${JSON.stringify(embedding)}::vector) >= ${similarityThreshold}
+    GROUP BY fe."feedbackId", fe.embedding, fa.sentiment, fa."sentimentScore", fa.summary, fa."featureArea", fa.keywords
+    ORDER BY fe.embedding <=> ${JSON.stringify(embedding)}::vector
     LIMIT ${limit}
     `;
 
@@ -182,6 +215,7 @@ export async function findNearestFeedbacks({
 
             keywords: row.keywords,
 
-            themes: [],
+            // themes: [],
+            themes: row.themes,
         },
 }))};

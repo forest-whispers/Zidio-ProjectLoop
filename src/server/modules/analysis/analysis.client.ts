@@ -1,4 +1,4 @@
-import { embed, generateText, Output } from "ai";
+import { embed, generateText, Output, APICallError } from "ai";
 import { google } from "@ai-sdk/google";
 
 import { analysisSchema } from "./analysis.validation";
@@ -29,10 +29,15 @@ export async function analyzeFeedback(
             prompt: buildAnalysisPrompt(feedback),
 
             temperature: 0.2,
+
+            maxRetries: 2
         });
 
         return output;
     } catch (error) {
+        if (APICallError.isInstance(error) && error.statusCode === 429) {
+            console.warn("Gemini API rate limit exceeded. Please wait before trying again.");
+        }
         throw new Error("Failed to analyze feedback.", {
             cause: error,
         });

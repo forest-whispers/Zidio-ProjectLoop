@@ -1,7 +1,8 @@
 export const ANALYSIS_CONSTANTS = {
     ANALYSIS_PROVIDER: "google",
 
-    ANALYSIS_MODEL_NAME: "gemini-2.5-flash",
+    ANALYSIS_MODEL_NAME: "gemini-3.6-flash",
+    // ANALYSIS_MODEL_NAME: "gemini-2.0-flash",
 
     EMBEDDING_PROVIDER: "google",
     EMBEDDING_MODEL_NAME: "gemini-embedding-001",

@@ -81,6 +81,7 @@ export async function getFeedbacks(
                         theme: true,
                     },
                 },
+                analysis: true,
             },
         }),
 
@@ -117,6 +118,7 @@ export async function getFeedbackById(
                     theme: true,
                 },
             },
+            analysis: true,
         },
     });
 

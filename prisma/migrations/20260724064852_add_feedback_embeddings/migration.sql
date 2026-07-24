@@ -9,7 +9,7 @@ CREATE TABLE "FeedbackEmbedding" (
     "model" TEXT NOT NULL,
     "embedding" vector(768) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "FeedbackEmbedding_pkey" PRIMARY KEY ("id")
 );
